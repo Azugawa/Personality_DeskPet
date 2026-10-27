@@ -1,0 +1,1116 @@
+{
+  "generated_by": "deskpet/tools/prepare_sprite_sheets.py",
+  "direction_order": [
+    "front",
+    "front_right",
+    "right",
+    "back_right",
+    "back",
+    "back_left",
+    "left",
+    "front_left"
+  ],
+  "notes": "Source presentation sheets are never modified. Outputs keep native pixels and use bottom-centre pivots.",
+  "static_directions": {
+    "source": "E:\\DeskPet\\素材\\八方向图.png",
+    "source_sha256": "dfd7519645ee7a73a85cd61094aa4112a59963ee1db031b81b9af6ccf44dbfb6",
+    "canvas": [
+      256,
+      384
+    ],
+    "images": [
+      {
+        "direction": "front",
+        "path": "res://assets/character/spirit/directions/front.png",
+        "source_bbox": [
+          58,
+          237,
+          232,
+          338
+        ],
+        "canvas": [
+          256,
+          384
+        ],
+        "anchor": [
+          128,
+          384
+        ]
+      },
+      {
+        "direction": "front_right",
+        "path": "res://assets/character/spirit/directions/front_right.png",
+        "source_bbox": [
+          352,
+          222,
+          240,
+          354
+        ],
+        "canvas": [
+          256,
+          384
+        ],
+        "anchor": [
+          128,
+          384
+        ]
+      },
+      {
+        "direction": "right",
+        "path": "res://assets/character/spirit/directions/right.png",
+        "source_bbox": [
+          659,
+          236,
+          214,
+          343
+        ],
+        "canvas": [
+          256,
+          384
+        ],
+        "anchor": [
+          128,
+          384
+        ]
+      },
+      {
+        "direction": "back_right",
+        "path": "res://assets/character/spirit/directions/back_right.png",
+        "source_bbox": [
+          960,
+          226,
+          239,
+          351
+        ],
+        "canvas": [
+          256,
+          384
+        ],
+        "anchor": [
+          128,
+          384
+        ]
+      },
+      {
+        "direction": "back",
+        "path": "res://assets/character/spirit/directions/back.png",
+        "source_bbox": [
+          57,
+          808,
+          228,
+          343
+        ],
+        "canvas": [
+          256,
+          384
+        ],
+        "anchor": [
+          128,
+          384
+        ]
+      },
+      {
+        "direction": "back_left",
+        "path": "res://assets/character/spirit/directions/back_left.png",
+        "source_bbox": [
+          363,
+          805,
+          226,
+          346
+        ],
+        "canvas": [
+          256,
+          384
+        ],
+        "anchor": [
+          128,
+          384
+        ]
+      },
+      {
+        "direction": "left",
+        "path": "res://assets/character/spirit/directions/left.png",
+        "source_bbox": [
+          659,
+          808,
+          221,
+          343
+        ],
+        "canvas": [
+          256,
+          384
+        ],
+        "anchor": [
+          128,
+          384
+        ]
+      },
+      {
+        "direction": "front_left",
+        "path": "res://assets/character/spirit/directions/front_left.png",
+        "source_bbox": [
+          958,
+          798,
+          234,
+          357
+        ],
+        "canvas": [
+          256,
+          384
+        ],
+        "anchor": [
+          128,
+          384
+        ]
+      }
+    ]
+  },
+  "walk_directions": {
+    "source": "E:\\DeskPet\\素材\\人物走路八方向图.png",
+    "source_sha256": "e7cc3c249d5a1c007991a5906bf32afff9906da53894ded959561568608d3482",
+    "canvas": [
+      96,
+      160
+    ],
+    "directions": {
+      "front": {
+        "frames": [
+          {
+            "path": "res://assets/character/spirit/walk/front_01.png",
+            "source_bbox": [
+              34,
+              199,
+              84,
+              141
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/front_02.png",
+            "source_bbox": [
+              122,
+              199,
+              84,
+              141
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/front_03.png",
+            "source_bbox": [
+              211,
+              199,
+              83,
+              141
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/front_04.png",
+            "source_bbox": [
+              295,
+              199,
+              85,
+              141
+            ]
+          }
+        ],
+        "canvas": [
+          96,
+          160
+        ],
+        "anchor": [
+          48,
+          160
+        ]
+      },
+      "front_right": {
+        "frames": [
+          {
+            "path": "res://assets/character/spirit/walk/front_right_01.png",
+            "source_bbox": [
+              423,
+              199,
+              84,
+              141
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/front_right_02.png",
+            "source_bbox": [
+              509,
+              199,
+              84,
+              141
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/front_right_03.png",
+            "source_bbox": [
+              595,
+              198,
+              84,
+              145
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/front_right_04.png",
+            "source_bbox": [
+              682,
+              199,
+              83,
+              141
+            ]
+          }
+        ],
+        "canvas": [
+          96,
+          160
+        ],
+        "anchor": [
+          48,
+          160
+        ]
+      },
+      "right": {
+        "frames": [
+          {
+            "path": "res://assets/character/spirit/walk/right_01.png",
+            "source_bbox": [
+              801,
+              199,
+              83,
+              145
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/right_02.png",
+            "source_bbox": [
+              885,
+              199,
+              82,
+              144
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/right_03.png",
+            "source_bbox": [
+              969,
+              199,
+              83,
+              141
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/right_04.png",
+            "source_bbox": [
+              1054,
+              199,
+              82,
+              145
+            ]
+          }
+        ],
+        "canvas": [
+          96,
+          160
+        ],
+        "anchor": [
+          48,
+          160
+        ]
+      },
+      "back_right": {
+        "frames": [
+          {
+            "path": "res://assets/character/spirit/walk/back_right_01.png",
+            "source_bbox": [
+              1177,
+              199,
+              83,
+              145
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/back_right_02.png",
+            "source_bbox": [
+              1261,
+              199,
+              84,
+              144
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/back_right_03.png",
+            "source_bbox": [
+              1348,
+              199,
+              83,
+              145
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/back_right_04.png",
+            "source_bbox": [
+              1434,
+              199,
+              82,
+              141
+            ]
+          }
+        ],
+        "canvas": [
+          96,
+          160
+        ],
+        "anchor": [
+          48,
+          160
+        ]
+      },
+      "back": {
+        "frames": [
+          {
+            "path": "res://assets/character/spirit/walk/back_01.png",
+            "source_bbox": [
+              33,
+              693,
+              87,
+              149
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/back_02.png",
+            "source_bbox": [
+              122,
+              693,
+              87,
+              150
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/back_03.png",
+            "source_bbox": [
+              214,
+              694,
+              85,
+              148
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/back_04.png",
+            "source_bbox": [
+              301,
+              694,
+              86,
+              149
+            ]
+          }
+        ],
+        "canvas": [
+          96,
+          160
+        ],
+        "anchor": [
+          48,
+          160
+        ]
+      },
+      "back_left": {
+        "frames": [
+          {
+            "path": "res://assets/character/spirit/walk/back_left_01.png",
+            "source_bbox": [
+              423,
+              696,
+              85,
+              147
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/back_left_02.png",
+            "source_bbox": [
+              509,
+              695,
+              84,
+              148
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/back_left_03.png",
+            "source_bbox": [
+              595,
+              695,
+              85,
+              149
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/back_left_04.png",
+            "source_bbox": [
+              681,
+              695,
+              85,
+              149
+            ]
+          }
+        ],
+        "canvas": [
+          96,
+          160
+        ],
+        "anchor": [
+          48,
+          160
+        ]
+      },
+      "left": {
+        "frames": [
+          {
+            "path": "res://assets/character/spirit/walk/left_01.png",
+            "source_bbox": [
+              801,
+              697,
+              83,
+              145
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/left_02.png",
+            "source_bbox": [
+              885,
+              697,
+              82,
+              148
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/left_03.png",
+            "source_bbox": [
+              969,
+              697,
+              83,
+              145
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/left_04.png",
+            "source_bbox": [
+              1054,
+              697,
+              82,
+              148
+            ]
+          }
+        ],
+        "canvas": [
+          96,
+          160
+        ],
+        "anchor": [
+          48,
+          160
+        ]
+      },
+      "front_left": {
+        "frames": [
+          {
+            "path": "res://assets/character/spirit/walk/front_left_01.png",
+            "source_bbox": [
+              1175,
+              696,
+              84,
+              149
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/front_left_02.png",
+            "source_bbox": [
+              1260,
+              697,
+              84,
+              146
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/front_left_03.png",
+            "source_bbox": [
+              1346,
+              697,
+              84,
+              148
+            ]
+          },
+          {
+            "path": "res://assets/character/spirit/walk/front_left_04.png",
+            "source_bbox": [
+              1430,
+              697,
+              85,
+              146
+            ]
+          }
+        ],
+        "canvas": [
+          96,
+          160
+        ],
+        "anchor": [
+          48,
+          160
+        ]
+      }
+    }
+  },
+  "idle_front": {
+    "source": "E:\\DeskPet\\素材\\idle_breath.png",
+    "source_sha256": "7625b6d6db4c83059c380dee4c662ae90c49fd1d16632e0bf194c431602db98b",
+    "canvas": [
+      352,
+      512
+    ],
+    "anchor": [
+      176,
+      512
+    ],
+    "frames": [
+      {
+        "path": "res://assets/character/spirit/idle/front_01.png",
+        "source_bbox": [
+          16,
+          16,
+          327,
+          495
+        ]
+      },
+      {
+        "path": "res://assets/character/spirit/idle/front_02.png",
+        "source_bbox": [
+          367,
+          22,
+          327,
+          489
+        ]
+      },
+      {
+        "path": "res://assets/character/spirit/idle/front_03.png",
+        "source_bbox": [
+          718,
+          16,
+          327,
+          495
+        ]
+      },
+      {
+        "path": "res://assets/character/spirit/idle/front_04.png",
+        "source_bbox": [
+          1069,
+          22,
+          327,
+          489
+        ]
+      },
+      {
+        "path": "res://assets/character/spirit/idle/front_05.png",
+        "source_bbox": [
+          1420,
+          16,
+          327,
+          495
+        ]
+      }
+    ]
+  },
+  "furniture": {
+    "chair": {
+      "source": "E:\\DeskPet\\素材\\桌子和椅子八方向图.png",
+      "source_sha256": "536463f2975cc8402b82a9788490d4666494771fec2369cbe0c2ebc5976067c1",
+      "canvas": [
+        120,
+        160
+      ],
+      "views": {
+        "front": {
+          "path": "res://assets/props/chair/front.png",
+          "source_bbox": [
+            221,
+            347,
+            94,
+            120
+          ],
+          "canvas": [
+            120,
+            160
+          ],
+          "anchor": [
+            60,
+            160
+          ]
+        },
+        "front_right": {
+          "path": "res://assets/props/chair/front_right.png",
+          "source_bbox": [
+            224,
+            95,
+            90,
+            126
+          ],
+          "canvas": [
+            120,
+            160
+          ],
+          "anchor": [
+            60,
+            160
+          ]
+        },
+        "right": {
+          "path": "res://assets/props/chair/right.png",
+          "source_bbox": [
+            535,
+            90,
+            102,
+            141
+          ],
+          "canvas": [
+            120,
+            160
+          ],
+          "anchor": [
+            60,
+            160
+          ]
+        },
+        "back_right": {
+          "path": "res://assets/props/chair/back_right.png",
+          "source_bbox": [
+            542,
+            343,
+            101,
+            125
+          ],
+          "canvas": [
+            120,
+            160
+          ],
+          "anchor": [
+            60,
+            160
+          ]
+        },
+        "back": {
+          "path": "res://assets/props/chair/back.png",
+          "source_bbox": [
+            885,
+            343,
+            82,
+            124
+          ],
+          "canvas": [
+            120,
+            160
+          ],
+          "anchor": [
+            60,
+            160
+          ]
+        },
+        "back_left": {
+          "path": "res://assets/props/chair/back_left.png",
+          "source_bbox": [
+            906,
+            95,
+            81,
+            131
+          ],
+          "canvas": [
+            120,
+            160
+          ],
+          "anchor": [
+            60,
+            160
+          ]
+        },
+        "left": {
+          "path": "res://assets/props/chair/left.png",
+          "source_bbox": [
+            1206,
+            337,
+            100,
+            134
+          ],
+          "canvas": [
+            120,
+            160
+          ],
+          "anchor": [
+            60,
+            160
+          ]
+        },
+        "front_left": {
+          "path": "res://assets/props/chair/front_left.png",
+          "source_bbox": [
+            1224,
+            91,
+            100,
+            142
+          ],
+          "canvas": [
+            120,
+            160
+          ],
+          "anchor": [
+            60,
+            160
+          ]
+        }
+      }
+    },
+    "desk": {
+      "source": "E:\\DeskPet\\素材\\桌子八方向_坐姿参考",
+      "reference": "E:\\DeskPet\\素材\\坐姿定格.png",
+      "reference_sha256": "8b26a2852e03616bcc434e03a926b35b9706e8759aedfbb0265a042bb9824317",
+      "generator": "built-in image_gen",
+      "resampling": "nearest",
+      "canvas": [
+        160,
+        160
+      ],
+      "views": {
+        "front": {
+          "path": "res://assets/props/desk/front.png",
+          "source": "E:\\DeskPet\\素材\\桌子八方向_坐姿参考\\front.png",
+          "source_sha256": "11105ec82e9ab205dc994c7b580d8aab60238ae8916bb3963ea317b3df640bee",
+          "source_bbox": [
+            92,
+            197,
+            1527,
+            839
+          ],
+          "canvas": [
+            160,
+            160
+          ],
+          "anchor": [
+            80,
+            160
+          ],
+          "content_size": [
+            144,
+            64
+          ]
+        },
+        "front_right": {
+          "path": "res://assets/props/desk/front_right.png",
+          "source": "E:\\DeskPet\\素材\\桌子八方向_坐姿参考\\front_right.png",
+          "source_sha256": "a41748140c97d2d6205832b3dec7a8bfe8fd63ba68682d9030f2e57beb3ece2d",
+          "source_bbox": [
+            96,
+            150,
+            1523,
+            859
+          ],
+          "canvas": [
+            160,
+            160
+          ],
+          "anchor": [
+            80,
+            160
+          ],
+          "content_size": [
+            144,
+            72
+          ]
+        },
+        "right": {
+          "path": "res://assets/props/desk/right.png",
+          "source": "E:\\DeskPet\\素材\\桌子八方向_坐姿参考\\right.png",
+          "source_sha256": "426ec34d1649c6e4a02c69da51da6842bda847b9d5547421de96fdf410b28ea4",
+          "source_bbox": [
+            420,
+            171,
+            1116,
+            839
+          ],
+          "canvas": [
+            160,
+            160
+          ],
+          "anchor": [
+            80,
+            160
+          ],
+          "content_size": [
+            72,
+            69
+          ]
+        },
+        "back_right": {
+          "path": "res://assets/props/desk/back_right.png",
+          "source": "E:\\DeskPet\\素材\\桌子八方向_坐姿参考\\back_left.png",
+          "source_sha256": "65d36f552f3a90095678a998d954f990acafcc983be59a50d43897f721d270a0",
+          "source_bbox": [
+            142,
+            158,
+            1507,
+            872
+          ],
+          "canvas": [
+            160,
+            160
+          ],
+          "anchor": [
+            80,
+            160
+          ],
+          "content_size": [
+            144,
+            75
+          ]
+        },
+        "back": {
+          "path": "res://assets/props/desk/back.png",
+          "source": "E:\\DeskPet\\素材\\桌子八方向_坐姿参考\\back.png",
+          "source_sha256": "dd6693b3645a8d563fad55c17e8e7810466c69fdb0b23f0c703a373d814c5496",
+          "source_bbox": [
+            91,
+            195,
+            1529,
+            838
+          ],
+          "canvas": [
+            160,
+            160
+          ],
+          "anchor": [
+            80,
+            160
+          ],
+          "content_size": [
+            144,
+            64
+          ]
+        },
+        "back_left": {
+          "path": "res://assets/props/desk/back_left.png",
+          "source": "E:\\DeskPet\\素材\\桌子八方向_坐姿参考\\back_right.png",
+          "source_sha256": "9b9f9bf1eb5492c19398ef93c398b122fff3ecbaa3a139ae05487157ffb5c7c1",
+          "source_bbox": [
+            126,
+            137,
+            1494,
+            892
+          ],
+          "canvas": [
+            160,
+            160
+          ],
+          "anchor": [
+            80,
+            160
+          ],
+          "content_size": [
+            144,
+            79
+          ]
+        },
+        "left": {
+          "path": "res://assets/props/desk/left.png",
+          "source": "E:\\DeskPet\\素材\\桌子八方向_坐姿参考\\left.png",
+          "source_sha256": "346c0e013cba1ebae1f6d746f9c5e970d225299a695b7b438fb93898ffc1c698",
+          "source_bbox": [
+            421,
+            171,
+            1116,
+            831
+          ],
+          "canvas": [
+            160,
+            160
+          ],
+          "anchor": [
+            80,
+            160
+          ],
+          "content_size": [
+            72,
+            68
+          ]
+        },
+        "front_left": {
+          "path": "res://assets/props/desk/front_left.png",
+          "source": "E:\\DeskPet\\素材\\桌子八方向_坐姿参考\\front_left.png",
+          "source_sha256": "083245179af7e601fe26d8852cdbda4e111145b030097900e41e87759b9f5a3b",
+          "source_bbox": [
+            102,
+            160,
+            1530,
+            883
+          ],
+          "canvas": [
+            160,
+            160
+          ],
+          "anchor": [
+            80,
+            160
+          ],
+          "content_size": [
+            144,
+            73
+          ]
+        }
+      }
+    }
+  },
+  "computer": {
+    "source": "E:\\DeskPet\\素材\\电脑八方向图.png",
+    "source_sha256": "b1010fc1c1361cb294b8cc46b7fc6171e39182f14c9c6c07aced060fee5cbc21",
+    "canvas": [
+      224,
+      256
+    ],
+    "views": {
+      "front": {
+        "path": "res://assets/props/computer/front.png",
+        "source_bbox": [
+          117,
+          210,
+          192,
+          201
+        ],
+        "canvas": [
+          224,
+          256
+        ],
+        "anchor": [
+          112,
+          256
+        ]
+      },
+      "front_right": {
+        "path": "res://assets/props/computer/front_right.png",
+        "source_bbox": [
+          480,
+          199,
+          197,
+          246
+        ],
+        "canvas": [
+          224,
+          256
+        ],
+        "anchor": [
+          112,
+          256
+        ]
+      },
+      "right": {
+        "path": "res://assets/props/computer/right.png",
+        "source_bbox": [
+          893,
+          202,
+          115,
+          238
+        ],
+        "canvas": [
+          224,
+          256
+        ],
+        "anchor": [
+          112,
+          256
+        ]
+      },
+      "back_right": {
+        "path": "res://assets/props/computer/back_right.png",
+        "source_bbox": [
+          1221,
+          204,
+          196,
+          232
+        ],
+        "canvas": [
+          224,
+          256
+        ],
+        "anchor": [
+          112,
+          256
+        ]
+      },
+      "back": {
+        "path": "res://assets/props/computer/back.png",
+        "source_bbox": [
+          113,
+          700,
+          195,
+          181
+        ],
+        "canvas": [
+          224,
+          256
+        ],
+        "anchor": [
+          112,
+          256
+        ]
+      },
+      "back_left": {
+        "path": "res://assets/props/computer/back_left.png",
+        "source_bbox": [
+          480,
+          669,
+          203,
+          229
+        ],
+        "canvas": [
+          224,
+          256
+        ],
+        "anchor": [
+          112,
+          256
+        ]
+      },
+      "left": {
+        "path": "res://assets/props/computer/left.png",
+        "source_bbox": [
+          893,
+          679,
+          112,
+          231
+        ],
+        "canvas": [
+          224,
+          256
+        ],
+        "anchor": [
+          112,
+          256
+        ]
+      },
+      "front_left": {
+        "path": "res://assets/props/computer/front_left.png",
+        "source_bbox": [
+          1218,
+          670,
+          195,
+          233
+        ],
+        "canvas": [
+          224,
+          256
+        ],
+        "anchor": [
+          112,
+          256
+        ]
+      }
+    }
+  },
+  "validation": {
+    "rgba_images": 69,
+    "all_corners_transparent": true
+  }
+}

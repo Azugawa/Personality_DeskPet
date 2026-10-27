@@ -1,0 +1,15 @@
+{
+  "auto_enabled": false,
+  "idle_delay_seconds": [3.0, 6.0],
+  "manual_pause_seconds": 4.0,
+  "look_chance": 0.35,
+  "walk_chance": 0.65,
+  "walk_speed": 76.0,
+  "walk_bounds": [110, 530, 580, 660],
+  "auto_walk_distance": [45, 120],
+  "cooldowns_seconds": {
+    "walk": 8.0,
+    "look": 2.0
+  },
+  "notes": "Normal desktop-pet behaviour is idle. Random look/walk is an optional mode toggled with Tab or set_auto_enabled(); activity selection is driven by the right-click menu."
+}

@@ -1,0 +1,37 @@
+{
+  "profile_id": "desk_computer",
+  "display_name": "电脑桌",
+  "kind": "directional_texture",
+  "scene": "res://scenes/props/furniture.tscn",
+  "directions": {
+    "front": "res://assets/props/computer/front.png",
+    "front_right": "res://assets/props/computer/front_right.png",
+    "right": "res://assets/props/computer/right.png",
+    "back_right": "res://assets/props/computer/back_right.png",
+    "back": "res://assets/props/computer/back.png",
+    "back_left": "res://assets/props/computer/back_left.png",
+    "left": "res://assets/props/computer/left.png",
+    "front_left": "res://assets/props/computer/front_left.png"
+  },
+  "canvas": [224, 256],
+  "scale": 0.95,
+  "default_direction": "front",
+  "anchor": "bottom_center",
+  "work_surface_uv": [0.5, 0.68],
+  "screen_anchor_uv": [0.5, 0.35],
+  "shadow": {
+    "enabled": true,
+    "shape": "ellipse",
+    "center": [0, 0],
+    "size": [176, 30],
+    "color": "#00000055",
+    "core_color": "#00000030",
+    "core_scale": 0.62
+  },
+  "interaction": {
+    "seat": false,
+    "work_surface": true,
+    "computer": true,
+    "carry": false
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "profile_id": "debug_chair",
+  "profile_version": 1,
+  "display_name": "Debug Chair",
+  "kind": "debug_pseudo3d",
+  "units": "design_px",
+  "dimensions": {
+    "width": 84,
+    "depth": 84,
+    "height": 142
+  },
+  "anchor": {
+    "x": 42,
+    "depth": 0,
+    "z": 0
+  },
+  "parts": [
+    {
+      "id": "back_left_leg",
+      "draw_order": 10,
+      "material": "chair_leg",
+      "box": {
+        "origin": [5, 70, 0],
+        "size": [8, 8, 58]
+      }
+    },
+    {
+      "id": "back_right_leg",
+      "draw_order": 10,
+      "material": "chair_leg",
+      "box": {
+        "origin": [71, 70, 0],
+        "size": [8, 8, 58]
+      }
+    },
+    {
+      "id": "backrest",
+      "draw_order": 15,
+      "material": "chair_body",
+      "box": {
+        "origin": [8, 72, 58],
+        "size": [68, 10, 84]
+      }
+    },
+    {
+      "id": "seat",
+      "draw_order": 30,
+      "material": "chair_body",
+      "box": {
+        "origin": [0, 0, 58],
+        "size": [84, 84, 14]
+      }
+    },
+    {
+      "id": "front_left_leg",
+      "draw_order": 40,
+      "material": "chair_leg",
+      "box": {
+        "origin": [5, 4, 0],
+        "size": [8, 8, 58]
+      }
+    },
+    {
+      "id": "front_right_leg",
+      "draw_order": 40,
+      "material": "chair_leg",
+      "box": {
+        "origin": [71, 4, 0],
+        "size": [8, 8, 58]
+      }
+    }
+  ],
+  "shadow": {
+    "enabled": true,
+    "shape": "footprint",
+    "center": [0, 42],
+    "size": [100, 96],
+    "offset": [8, 5],
+    "color": "#00000055",
+    "core_color": "#00000033",
+    "core_scale": 0.66,
+    "z_index": -2
+  },
+  "debug": {
+    "label": "DEBUG CHAIR",
+    "sublabel": "PLACEHOLDER",
+    "label_offset": [80, -190],
+    "label_width": 144,
+    "anchor_marker": true
+  }
+}

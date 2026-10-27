@@ -1,0 +1,36 @@
+{
+  "activities": [
+    {
+      "id": "idle",
+      "label": "待机",
+      "kind": "idle",
+      "enabled": true
+    },
+    {
+      "id": "rest",
+      "label": "休息",
+      "kind": "seated_activity",
+      "required_furniture": ["chair", "desk"],
+      "show_furniture": ["chair", "desk"],
+      "hide_furniture": ["computer"],
+      "approach_furniture": "chair",
+      "seat_furniture": "chair",
+      "required_animation": "sit_front",
+      "reveal_seconds": 0.9,
+      "notes": "Walk to the chair and reveal the desk slowly. Seated animation is staged until authored sit frames are supplied."
+    },
+    {
+      "id": "computer",
+      "label": "玩电脑",
+      "kind": "seated_activity",
+      "required_furniture": ["chair", "computer"],
+      "show_furniture": ["chair", "computer"],
+      "hide_furniture": ["desk"],
+      "approach_furniture": "chair",
+      "seat_furniture": "chair",
+      "required_animation": "sit_front",
+      "reveal_seconds": 0.9,
+      "notes": "Walk to the chair and reveal the computer workstation slowly. Seated animation is staged until authored sit frames are supplied."
+    }
+  ]
+}

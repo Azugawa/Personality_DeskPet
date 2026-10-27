@@ -1,0 +1,36 @@
+{
+  "profile_id": "wood_desk",
+  "display_name": "木桌",
+  "kind": "directional_texture",
+  "scene": "res://scenes/props/furniture.tscn",
+  "directions": {
+    "front": "res://assets/props/desk/front.png",
+    "front_right": "res://assets/props/desk/front_right.png",
+    "right": "res://assets/props/desk/right.png",
+    "back_right": "res://assets/props/desk/back_right.png",
+    "back": "res://assets/props/desk/back.png",
+    "back_left": "res://assets/props/desk/back_left.png",
+    "left": "res://assets/props/desk/left.png",
+    "front_left": "res://assets/props/desk/front_left.png"
+  },
+  "canvas": [160, 160],
+  "scale": 1.14,
+  "default_direction": "front",
+  "anchor": "bottom_center",
+  "work_surface_uv": [0.5, 0.67],
+  "lean_anchor_uv": [0.5, 0.72],
+  "shadow": {
+    "enabled": true,
+    "shape": "ellipse",
+    "center": [0, 0],
+    "size": [146, 26],
+    "color": "#00000055",
+    "core_color": "#00000030",
+    "core_scale": 0.62
+  },
+  "interaction": {
+    "seat": false,
+    "work_surface": true,
+    "carry": true
+  }
+}

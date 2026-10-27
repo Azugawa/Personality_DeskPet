@@ -1,0 +1,36 @@
+{
+  "profile_id": "wood_chair",
+  "display_name": "木椅",
+  "kind": "directional_texture",
+  "scene": "res://scenes/props/furniture.tscn",
+  "directions": {
+    "front": "res://assets/props/chair/front.png",
+    "front_right": "res://assets/props/chair/front_right.png",
+    "right": "res://assets/props/chair/right.png",
+    "back_right": "res://assets/props/chair/back_right.png",
+    "back": "res://assets/props/chair/back.png",
+    "back_left": "res://assets/props/chair/back_left.png",
+    "left": "res://assets/props/chair/left.png",
+    "front_left": "res://assets/props/chair/front_left.png"
+  },
+  "canvas": [120, 160],
+  "scale": 1.17,
+  "default_direction": "front",
+  "anchor": "bottom_center",
+  "seat_anchor_uv": [0.5, 0.67],
+  "approach_offset": [0, 28],
+  "shadow": {
+    "enabled": true,
+    "shape": "ellipse",
+    "center": [0, 0],
+    "size": [104, 22],
+    "color": "#00000055",
+    "core_color": "#00000030",
+    "core_scale": 0.62
+  },
+  "interaction": {
+    "seat": true,
+    "work_surface": false,
+    "carry": true
+  }
+}

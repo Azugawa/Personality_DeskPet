@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "profile_id": "deskpet_pseudo3d_v1",
+  "name": "Front-biased orthographic oblique 2.5D",
+  "summary_zh": "统一采用正面偏斜的斜投影：左右为屏幕横向，深度向右上方后退，高度向上；不使用透视缩放。人物使用正面 billboard，家具使用正面 + 顶面 + 右侧面的平涂三色块。",
+  "camera": {
+    "type": "orthographic_oblique",
+    "azimuth": "front",
+    "elevation": "slightly_above",
+    "depth_screen_angle_degrees": 32.5,
+    "viewer_side": "front_right",
+    "perspective_scaling": false,
+    "notes_zh": "约 32.5° 的深度投影角仅描述屏幕投影，不旋转任何 PNG。所有物体共享同一组地面轴和像素比例。"
+  },
+  "ground": {
+    "front_y": 660,
+    "x_origin": 0,
+    "depth_axis": [0.55, -0.35],
+    "height_axis": [0, -1],
+    "max_depth": 200,
+    "pixel_scale": 1,
+    "formula_zh": "screen = (x + depth * 0.55, 660 + depth * -0.35 - z)"
+  },
+  "floor_guide": {
+    "enabled": true,
+    "preview_only": true,
+    "front_depth": -120,
+    "back_depth": 200,
+    "left_x": -80,
+    "right_x": 700,
+    "step_x": 80,
+    "step_depth": 25,
+    "major_step_x": 160,
+    "major_step_depth": 100,
+    "line_width_depth": 1,
+    "line_width_lateral": 2,
+    "floor_color": "#222a38",
+    "grid_color": "#384658",
+    "major_grid_color": "#4b5d75",
+    "edge_color": "#617894",
+    "origin_line_color": "#7b91ad"
+  },
+  "depth_sorting": {
+    "rule": "closer to camera (smaller depth) must render above farther objects",
+    "note_zh": "具体 z_index 写在场景配置中，并在测试中校验：character 50 > chair 40 > desk 30。"
+  },
+  "lighting": {
+    "key_direction": "upper_left",
+    "shadow_direction": "lower_right",
+    "face_tones": {
+      "top": "lightest",
+      "front": "base",
+      "side": "darkest"
+    },
+    "no_gradients": true,
+    "outline_width_px": 1
+  },
+  "palette": {
+    "desk_top": {
+      "top": "#a8865d",
+      "front": "#876a46",
+      "side": "#645037",
+      "outline": "#2a2118"
+    },
+    "desk_leg": {
+      "top": "#6d5941",
+      "front": "#5a4835",
+      "side": "#413327",
+      "outline": "#211a13"
+    },
+    "desk_panel": {
+      "top": "#5c4a38",
+      "front": "#4a3b2c",
+      "side": "#352a20",
+      "outline": "#1d1711"
+    },
+    "chair_body": {
+      "top": "#5e8097",
+      "front": "#496a80",
+      "side": "#334e61",
+      "outline": "#182833"
+    },
+    "chair_leg": {
+      "top": "#435562",
+      "front": "#374853",
+      "side": "#26343e",
+      "outline": "#141d23"
+    },
+    "debug_tag": {
+      "background": "#10141b",
+      "border": "#d8c36a",
+      "text": "#f2e3a6",
+      "anchor": "#ff57d5"
+    }
+  },
+  "rules_zh": [
+    "所有地面接触点必须使用统一 ground 投影；禁止单独手写一套屏幕坐标。",
+    "深度越大 = 越远 = z_index 越低；近处物体遮挡远处物体。",
+    "所有盒体只使用顶面/正面/右侧面三块平涂色，轮廓 1px，不做渐变。",
+    "人物只有正面视角；禁止通过旋转整张 PNG 伪造转身或坐下。",
+    "阴影使用独立 ShadowView 节点，平涂、无模糊，位置和层级可配置。",
+    "像素比例固定为设计像素 1:1；人物纹理 scale=0.25，家具使用设计像素。",
+    "任何新增角度或动作必须先补齐对应素材，不能假设已经存在。"
+  ]
+}

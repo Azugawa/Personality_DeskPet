@@ -1,0 +1,103 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/debug_overlay.gd" id="1_overlay"]
+
+[node name="DebugOverlay" type="CanvasLayer"]
+layer = 100
+script = ExtResource("1_overlay")
+
+[node name="Panel" type="PanelContainer" parent="."]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 390.0
+offset_bottom = 560.0
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "DeskPet  (F1 hides)"
+
+[node name="StateLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "state=idle"
+
+[node name="AnimationLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "direction=front"
+
+[node name="FurnitureLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "furniture:"
+
+[node name="StatusLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Ready."
+
+[node name="HelpLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+autowrap_mode = 2
+text = "WASD/方向键移动；左键点角色摸头；右键角色切换动作；按住左键拖动窗口；Tab 自动；C 椅子；G 桌子；V 电脑；H 摸头；Z 坐下；I 待机"
+
+[node name="Separator" type="HSeparator" parent="Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="AutoButton" type="Button" parent="Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+text = "Tab  Auto: ON"
+
+[node name="IdleButton" type="Button" parent="Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+text = "I  Idle"
+
+[node name="WalkLeftButton" type="Button" parent="Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+text = "Walk Left"
+
+[node name="WalkRightButton" type="Button" parent="Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+text = "Walk Right"
+
+[node name="ChairButton" type="Button" parent="Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+text = "C  Toggle Chair"
+
+[node name="DeskButton" type="Button" parent="Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+text = "G  Toggle Desk"
+
+[node name="ComputerButton" type="Button" parent="Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+text = "V  Toggle Computer"
+
+[node name="HeadPatButton" type="Button" parent="Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+text = "H  Head Pat"
+
+[node name="SitButton" type="Button" parent="Panel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+text = "Z  Sit / Stand (reserved)"

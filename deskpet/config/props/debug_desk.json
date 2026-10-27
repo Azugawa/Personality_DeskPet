@@ -1,0 +1,91 @@
+{
+  "profile_id": "debug_desk",
+  "profile_version": 1,
+  "display_name": "Debug Desk",
+  "kind": "debug_pseudo3d",
+  "units": "design_px",
+  "dimensions": {
+    "width": 210,
+    "depth": 100,
+    "height": 148
+  },
+  "anchor": {
+    "x": 105,
+    "depth": 0,
+    "z": 0
+  },
+  "parts": [
+    {
+      "id": "back_left_leg",
+      "draw_order": 10,
+      "material": "desk_leg",
+      "box": {
+        "origin": [10, 84, 0],
+        "size": [14, 14, 134]
+      }
+    },
+    {
+      "id": "back_right_leg",
+      "draw_order": 10,
+      "material": "desk_leg",
+      "box": {
+        "origin": [186, 84, 0],
+        "size": [14, 14, 134]
+      }
+    },
+    {
+      "id": "back_panel",
+      "draw_order": 15,
+      "material": "desk_panel",
+      "box": {
+        "origin": [10, 84, 56],
+        "size": [190, 12, 78]
+      }
+    },
+    {
+      "id": "top",
+      "draw_order": 30,
+      "material": "desk_top",
+      "box": {
+        "origin": [0, 0, 134],
+        "size": [210, 100, 14]
+      }
+    },
+    {
+      "id": "front_left_leg",
+      "draw_order": 40,
+      "material": "desk_leg",
+      "box": {
+        "origin": [10, 2, 0],
+        "size": [14, 14, 134]
+      }
+    },
+    {
+      "id": "front_right_leg",
+      "draw_order": 40,
+      "material": "desk_leg",
+      "box": {
+        "origin": [186, 2, 0],
+        "size": [14, 14, 134]
+      }
+    }
+  ],
+  "shadow": {
+    "enabled": true,
+    "shape": "footprint",
+    "center": [0, 50],
+    "size": [230, 112],
+    "offset": [10, 6],
+    "color": "#00000055",
+    "core_color": "#00000033",
+    "core_scale": 0.66,
+    "z_index": -2
+  },
+  "debug": {
+    "label": "DEBUG DESK",
+    "sublabel": "PLACEHOLDER",
+    "label_offset": [0, -240],
+    "label_width": 156,
+    "anchor_marker": true
+  }
+}

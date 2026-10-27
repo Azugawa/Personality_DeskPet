@@ -1,0 +1,7 @@
+{
+  "default_scene": "standing",
+  "scenes": [
+    "standing",
+    "workspace_setup"
+  ]
+}

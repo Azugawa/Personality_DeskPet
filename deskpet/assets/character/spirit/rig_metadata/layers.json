@@ -1,0 +1,263 @@
+{
+  "version": 1,
+  "canvas": {
+    "width": 2048,
+    "height": 2048
+  },
+  "coordinate_system": "original_canvas_top_left_pixels",
+  "lr_convention": "L=角色自身左侧（观察者右侧）；R=角色自身右侧（观察者左侧）",
+  "parts": [
+    {
+      "name": "head",
+      "z": 40,
+      "bbox": [
+        406,
+        86,
+        1636,
+        1186
+      ],
+      "offset": [
+        406,
+        86
+      ],
+      "pivot": [
+        1021.0,
+        479.0
+      ],
+      "anchor_joint": "neck",
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "name": "torso",
+      "z": 10,
+      "bbox": [
+        713,
+        1186,
+        1329,
+        1633
+      ],
+      "offset": [
+        713,
+        1186
+      ],
+      "pivot": [
+        1021.0,
+        1186
+      ],
+      "anchor_joint": null,
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "name": "upper_arm_L",
+      "z": 30,
+      "bbox": [
+        1329,
+        1243,
+        1451,
+        1387
+      ],
+      "offset": [
+        1329,
+        1243
+      ],
+      "pivot": [
+        1328.75,
+        479.0
+      ],
+      "anchor_joint": "shoulder_L",
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "name": "forearm_L",
+      "z": 32,
+      "bbox": [
+        1329,
+        1388,
+        1509,
+        1535
+      ],
+      "offset": [
+        1329,
+        1388
+      ],
+      "pivot": [
+        1273.36,
+        726.05
+      ],
+      "anchor_joint": "elbow_L",
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "name": "hand_L",
+      "z": 34,
+      "bbox": [
+        1329,
+        1536,
+        1509,
+        1621
+      ],
+      "offset": [
+        1329,
+        1536
+      ],
+      "pivot": [
+        1190.26,
+        907.22
+      ],
+      "anchor_joint": "wrist_L",
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "name": "upper_arm_R",
+      "z": 30,
+      "bbox": [
+        593,
+        1247,
+        713,
+        1387
+      ],
+      "offset": [
+        593,
+        1247
+      ],
+      "pivot": [
+        713.25,
+        479.0
+      ],
+      "anchor_joint": "shoulder_R",
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "name": "forearm_R",
+      "z": 32,
+      "bbox": [
+        531,
+        1388,
+        713,
+        1535
+      ],
+      "offset": [
+        531,
+        1388
+      ],
+      "pivot": [
+        768.64,
+        726.05
+      ],
+      "anchor_joint": "elbow_R",
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "name": "hand_R",
+      "z": 34,
+      "bbox": [
+        531,
+        1536,
+        713,
+        1621
+      ],
+      "offset": [
+        531,
+        1536
+      ],
+      "pivot": [
+        851.74,
+        907.22
+      ],
+      "anchor_joint": "wrist_R",
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "name": "thigh_L",
+      "z": 20,
+      "bbox": [
+        1021,
+        1633,
+        1319,
+        1795
+      ],
+      "offset": [
+        1021,
+        1633
+      ],
+      "pivot": [
+        1538.02,
+        1536.0
+      ],
+      "anchor_joint": "hip_L",
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "name": "shin_L",
+      "z": 22,
+      "bbox": [
+        1021,
+        1796,
+        1320,
+        1956
+      ],
+      "offset": [
+        1021,
+        1796
+      ],
+      "pivot": [
+        1341.06,
+        1633.0
+      ],
+      "anchor_joint": "knee_L",
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "name": "thigh_R",
+      "z": 20,
+      "bbox": [
+        719,
+        1633,
+        1020,
+        1795
+      ],
+      "offset": [
+        719,
+        1633
+      ],
+      "pivot": [
+        503.98,
+        1536.0
+      ],
+      "anchor_joint": "hip_R",
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    },
+    {
+      "name": "shin_R",
+      "z": 22,
+      "bbox": [
+        720,
+        1796,
+        1020,
+        1955
+      ],
+      "offset": [
+        720,
+        1796
+      ],
+      "pivot": [
+        700.94,
+        1633.0
+      ],
+      "anchor_joint": "knee_R",
+      "synthetic_pixel_count": 0,
+      "status": "NEEDS_REVIEW"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "scene_id": "standing",
+  "display_name": "Standing",
+  "description": "Default pet scene. Character only; no furniture or work props. Feet sit on the shared pseudo-3D ground plane.",
+  "background": {
+    "type": "transparent",
+    "note": "No background artwork exists yet. The preview floor guide is drawn by Main from the shared visual profile and is hidden in desktop mode."
+  },
+  "character": {
+    "profile": "res://config/characters/spirit.json",
+    "state": "idle",
+    "ground_position": [320, 0],
+    "scale": 0.25,
+    "facing": "front",
+    "z_index": 50,
+    "shadow": {
+      "enabled": true,
+      "shape": "ellipse",
+      "offset": [8, 4],
+      "size": [224, 36],
+      "color": "#00000066",
+      "core_color": "#00000040",
+      "core_scale": 0.62,
+      "z_index": -5
+    }
+  },
+  "props": [],
+  "allowed_events": [
+    "workspace_requested"
+  ],
+  "transitions": {
+    "workspace_requested": {
+      "target_scene": "workspace_setup",
+      "reason": "workspace requested"
+    }
+  },
+  "lifecycle": {
+    "on_enter": {
+      "log": "Standing scene entered.",
+      "emit_events": ["scene_entered"]
+    },
+    "on_exit": {
+      "log": "Standing scene exited.",
+      "emit_events": ["scene_exited"]
+    }
+  }
+}

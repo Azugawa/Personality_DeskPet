@@ -1,0 +1,256 @@
+{
+  "character_id": "spirit",
+  "directions": [
+    "front",
+    "front_right",
+    "right",
+    "back_right",
+    "back",
+    "back_left",
+    "left",
+    "front_left"
+  ],
+  "animations": {
+    "idle_front": {
+      "frames": [
+        "res://assets/character/spirit/idle/front_01.png",
+        "res://assets/character/spirit/idle/front_02.png",
+        "res://assets/character/spirit/idle/front_03.png",
+        "res://assets/character/spirit/idle/front_04.png",
+        "res://assets/character/spirit/idle/front_05.png"
+      ],
+      "fps": 3.5,
+      "loop": true,
+      "scale": 0.6061,
+      "canvas": [
+        352,
+        512
+      ]
+    },
+    "walk_front": {
+      "frames": [
+        "res://assets/character/spirit/walk/front_01.png",
+        "res://assets/character/spirit/walk/front_02.png",
+        "res://assets/character/spirit/walk/front_03.png",
+        "res://assets/character/spirit/walk/front_04.png"
+      ],
+      "fps": 8.0,
+      "loop": true,
+      "scale": 2.069,
+      "canvas": [
+        96,
+        160
+      ]
+    },
+    "idle_front_right": {
+      "frames": [
+        "res://assets/character/spirit/directions/front_right.png"
+      ],
+      "fps": 1.0,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "walk_front_right": {
+      "frames": [
+        "res://assets/character/spirit/walk/front_right_01.png",
+        "res://assets/character/spirit/walk/front_right_02.png",
+        "res://assets/character/spirit/walk/front_right_03.png",
+        "res://assets/character/spirit/walk/front_right_04.png"
+      ],
+      "fps": 8.0,
+      "loop": true,
+      "scale": 2.069,
+      "canvas": [
+        96,
+        160
+      ]
+    },
+    "idle_right": {
+      "frames": [
+        "res://assets/character/spirit/directions/right.png"
+      ],
+      "fps": 1.0,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "walk_right": {
+      "frames": [
+        "res://assets/character/spirit/walk/right_01.png",
+        "res://assets/character/spirit/walk/right_02.png",
+        "res://assets/character/spirit/walk/right_03.png",
+        "res://assets/character/spirit/walk/right_04.png"
+      ],
+      "fps": 8.0,
+      "loop": true,
+      "scale": 2.069,
+      "canvas": [
+        96,
+        160
+      ]
+    },
+    "idle_back_right": {
+      "frames": [
+        "res://assets/character/spirit/directions/back_right.png"
+      ],
+      "fps": 1.0,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "walk_back_right": {
+      "frames": [
+        "res://assets/character/spirit/walk/back_right_01.png",
+        "res://assets/character/spirit/walk/back_right_02.png",
+        "res://assets/character/spirit/walk/back_right_03.png",
+        "res://assets/character/spirit/walk/back_right_04.png"
+      ],
+      "fps": 8.0,
+      "loop": true,
+      "scale": 2.069,
+      "canvas": [
+        96,
+        160
+      ]
+    },
+    "idle_back": {
+      "frames": [
+        "res://assets/character/spirit/directions/back.png"
+      ],
+      "fps": 1.0,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "walk_back": {
+      "frames": [
+        "res://assets/character/spirit/walk/back_01.png",
+        "res://assets/character/spirit/walk/back_02.png",
+        "res://assets/character/spirit/walk/back_03.png",
+        "res://assets/character/spirit/walk/back_04.png"
+      ],
+      "fps": 8.0,
+      "loop": true,
+      "scale": 2.069,
+      "canvas": [
+        96,
+        160
+      ]
+    },
+    "idle_back_left": {
+      "frames": [
+        "res://assets/character/spirit/directions/back_left.png"
+      ],
+      "fps": 1.0,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "walk_back_left": {
+      "frames": [
+        "res://assets/character/spirit/walk/back_left_01.png",
+        "res://assets/character/spirit/walk/back_left_02.png",
+        "res://assets/character/spirit/walk/back_left_03.png",
+        "res://assets/character/spirit/walk/back_left_04.png"
+      ],
+      "fps": 8.0,
+      "loop": true,
+      "scale": 2.069,
+      "canvas": [
+        96,
+        160
+      ]
+    },
+    "idle_left": {
+      "frames": [
+        "res://assets/character/spirit/directions/left.png"
+      ],
+      "fps": 1.0,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "walk_left": {
+      "frames": [
+        "res://assets/character/spirit/walk/left_01.png",
+        "res://assets/character/spirit/walk/left_02.png",
+        "res://assets/character/spirit/walk/left_03.png",
+        "res://assets/character/spirit/walk/left_04.png"
+      ],
+      "fps": 8.0,
+      "loop": true,
+      "scale": 2.069,
+      "canvas": [
+        96,
+        160
+      ]
+    },
+    "idle_front_left": {
+      "frames": [
+        "res://assets/character/spirit/directions/front_left.png"
+      ],
+      "fps": 1.0,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "walk_front_left": {
+      "frames": [
+        "res://assets/character/spirit/walk/front_left_01.png",
+        "res://assets/character/spirit/walk/front_left_02.png",
+        "res://assets/character/spirit/walk/front_left_03.png",
+        "res://assets/character/spirit/walk/front_left_04.png"
+      ],
+      "fps": 8.0,
+      "loop": true,
+      "scale": 2.069,
+      "canvas": [
+        96,
+        160
+      ]
+    }
+  },
+  "direction_idle": {
+    "front": "idle_front",
+    "front_right": "idle_front_right",
+    "right": "idle_right",
+    "back_right": "idle_back_right",
+    "back": "idle_back",
+    "back_left": "idle_back_left",
+    "left": "idle_left",
+    "front_left": "idle_front_left"
+  },
+  "direction_walk": {
+    "front": "walk_front",
+    "front_right": "walk_front_right",
+    "right": "walk_right",
+    "back_right": "walk_back_right",
+    "back": "walk_back",
+    "back_left": "walk_back_left",
+    "left": "walk_left",
+    "front_left": "walk_front_left"
+  },
+  "notes": "Generated from assets/sprite_manifest.json by deskpet/tools/prepare_sprite_sheets.py workflow. Scales target a 300 px character height."
+}

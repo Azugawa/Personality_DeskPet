@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "symmetry_x": 1021.0,
+  "landmarks": {
+    "symmetry_x": 1021.0,
+    "top_y": 86,
+    "bottom_y": 1956,
+    "left_x": 406,
+    "right_x": 1636,
+    "body_width": 1231,
+    "body_height": 1871,
+    "max_width": 1231.0,
+    "neck_y": 479,
+    "shoulder_y": 479,
+    "waist_y": 1186,
+    "hip_y": 1536,
+    "knee_y": 1633,
+    "ankle_y": 1897,
+    "arm_bottom_y": 1028,
+    "armpit_offset": 307.75,
+    "leg_width": 600.0,
+    "hip_width": 978.478,
+    "methods": {
+      "neck": "width_plateau"
+    }
+  },
+  "parts": {
+    "head": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    },
+    "torso": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    },
+    "upper_arm_L": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    },
+    "forearm_L": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    },
+    "hand_L": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    },
+    "upper_arm_R": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    },
+    "forearm_R": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    },
+    "hand_R": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    },
+    "thigh_L": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    },
+    "shin_L": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    },
+    "thigh_R": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    },
+    "shin_R": {
+      "method": "auto",
+      "confirmed": false,
+      "polygon": [],
+      "strokes": {
+        "add": [],
+        "erase": []
+      }
+    }
+  },
+  "head_torso_y": 668,
+  "head_mode": "big_head"
+}

@@ -1,0 +1,45 @@
+# Local settings and credentials
+.env
+.env.*
+!.env.example
+.codex/
+.agents/
+.aws/
+.idea/
+.vscode/
+*.pem
+*.key
+
+# Godot generated cache / editor data
+.godot/
+/deskpet/export_templates/
+/deskpet/feature_profiles/
+/deskpet/script_templates/
+/deskpet/text_editor_themes/
+/deskpet/editor_settings*.tres
+export_credentials.cfg
+
+# Python environment and generated character intermediates
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+/character_assets/*
+!/character_assets/config/
+
+# Build outputs, logs, local backups
+*.log
+*.tmp
+*.bak
+*.zip
+*.exe
+*.msi
+*.pck
+/build/
+/dist/
+/deskpet/export/
+/素材/*备份/
+/素材/桌子八方向_预览.png
+Thumbs.db
+.DS_Store

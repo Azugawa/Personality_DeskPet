@@ -1,0 +1,56 @@
+{
+  "character_id": "spirit",
+  "display_name": "Spirit",
+  "texture": "res://assets/character/spirit/character_full.png",
+  "render_mode": "sprite_frames",
+  "fallback_render_mode": "full_body",
+  "animations": "res://config/animations/spirit.json",
+  "canvas_size": [2048, 2048],
+  "content_bounds": [406, 86, 1231, 1871],
+  "anchor": "content_bottom_center",
+  "default_scale": 0.25,
+  "default_height": 300,
+  "default_facing": "front",
+  "default_state": "idle",
+  "visual": {
+    "projection": "direction_sprite",
+    "available_views": [
+      "front",
+      "front_right",
+      "right",
+      "back_right",
+      "back",
+      "back_left",
+      "left",
+      "front_left"
+    ],
+    "missing_views": [],
+    "missing_states": ["sitting", "carrying", "lying", "working"],
+    "feet_anchor": "bottom_center",
+    "baseline_scale": 0.871,
+    "mirroring_is_not_a_turn": true,
+    "notes": "Eight authored standing directions and eight four-frame walk cycles are available. Sitting, carrying, lying and computer-use poses are not authored yet. Directions are visual orientations: front means facing the camera; movement up on screen uses the back view."
+  },
+  "states": {
+    "idle": {
+      "render_mode": "sprite_frames",
+      "description": "Front idle uses the five-frame idle strip; other directions use their authored standing frame."
+    },
+    "walk": {
+      "render_mode": "sprite_frames",
+      "description": "Eight authored four-frame walk cycles."
+    },
+    "head_pat": {
+      "render_mode": "sprite_frames",
+      "description": "Reserved short interaction. Uses the current idle pose plus a conservative body bounce until a dedicated reaction clip exists."
+    }
+  },
+  "rig_metadata": {
+    "status": "NEEDS_REVIEW",
+    "usable_for_animation": false,
+    "joints": "res://assets/character/spirit/rig_metadata/joints.json",
+    "layers": "res://assets/character/spirit/rig_metadata/layers.json",
+    "segmentation": "res://assets/character/spirit/rig_metadata/segmentation.json",
+    "note": "The 12 provisional parts remain NEEDS_REVIEW. They are kept as the structural reference for future layered outfits and are not loaded by the runtime."
+  }
+}

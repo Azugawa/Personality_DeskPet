@@ -1,0 +1,17 @@
+{
+  "character_id": "missing_texture_test",
+  "display_name": "Missing Texture Test",
+  "texture": "res://assets/character/spirit/does_not_exist.png",
+  "render_mode": "full_body",
+  "canvas_size": [2048, 2048],
+  "content_bounds": [406, 86, 1231, 1871],
+  "anchor": "content_bottom_center",
+  "default_scale": 0.25,
+  "default_facing": "front",
+  "default_state": "standing",
+  "states": {
+    "standing": {
+      "render_mode": "full_body"
+    }
+  }
+}

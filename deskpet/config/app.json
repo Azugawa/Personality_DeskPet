@@ -1,0 +1,22 @@
+{
+  "app_name": "DeskPet",
+  "window": {
+    "width": 640,
+    "height": 720,
+    "resizable": false
+  },
+  "preview": {
+    "backdrop_color": "#141821",
+    "show_floor_guide": false
+  },
+  "desktop": {
+    "position": "center",
+    "margin": 48,
+    "transparent": true,
+    "borderless": true,
+    "always_on_top": true
+  },
+  "debug": {
+    "overlay": true
+  }
+}
