@@ -1,5 +1,0 @@
-# 角色资产包制作流水线依赖
-# 推荐使用 conda 虚拟环境（已含以下全部依赖的 python310 环境可直接使用）
-numpy
-Pillow
-opencv-python

@@ -43,3 +43,20 @@ venv/
 /素材/桌子八方向_预览.png
 Thumbs.db
 .DS_Store
+
+# Runtime-only repository; local authoring and verification files stay on disk.
+/素材/
+/Spirit/
+/charpipe/
+/character_assets/
+/build_assets.py
+/requirements.txt
+/docs/
+/CONTRIBUTING.md
+/deskpet/tools/
+/deskpet/tests/
+/deskpet/docs/
+/deskpet/README.md
+/deskpet/assets/**/*.md
+/deskpet/assets/sprite_manifest.json
+/deskpet/assets/character/spirit/rig_metadata/

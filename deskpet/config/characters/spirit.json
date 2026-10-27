@@ -44,13 +44,5 @@
       "render_mode": "sprite_frames",
       "description": "Reserved short interaction. Uses the current idle pose plus a conservative body bounce until a dedicated reaction clip exists."
     }
-  },
-  "rig_metadata": {
-    "status": "NEEDS_REVIEW",
-    "usable_for_animation": false,
-    "joints": "res://assets/character/spirit/rig_metadata/joints.json",
-    "layers": "res://assets/character/spirit/rig_metadata/layers.json",
-    "segmentation": "res://assets/character/spirit/rig_metadata/segmentation.json",
-    "note": "The 12 provisional parts remain NEEDS_REVIEW. They are kept as the structural reference for future layered outfits and are not loaded by the runtime."
   }
 }
