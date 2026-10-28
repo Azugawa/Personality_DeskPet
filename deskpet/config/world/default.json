@@ -1,18 +1,30 @@
 {
   "world_id": "deskpet_default",
   "display_name": "DeskPet 默认桌面",
-  "design_size": [640, 720],
+  "design_size": [
+    640,
+    720
+  ],
   "floor_y": 620,
   "character": {
     "profile": "res://config/characters/spirit.json",
-    "spawn": [320, 620],
+    "spawn": [
+      180,
+      620
+    ],
     "facing": "front",
     "z_index": 0,
     "shadow": {
       "enabled": true,
       "shape": "ellipse",
-      "offset": [5, 3],
-      "size": [110, 20],
+      "offset": [
+        5,
+        3
+      ],
+      "size": [
+        110,
+        20
+      ],
       "color": "#00000066",
       "core_color": "#00000040",
       "core_scale": 0.62,
@@ -23,22 +35,31 @@
     {
       "id": "chair",
       "profile": "res://config/props/chair.json",
-      "position": [452, 620],
+      "position": [
+        452,
+        620
+      ],
       "direction": "front",
-      "visible": true
+      "visible": false
     },
     {
       "id": "desk",
       "profile": "res://config/props/desk.json",
-      "position": [532, 600],
+      "position": [
+        532,
+        600
+      ],
       "direction": "front",
-      "visible": true,
+      "visible": false,
       "exclusive_group": "workstation"
     },
     {
       "id": "computer",
       "profile": "res://config/props/computer.json",
-      "position": [532, 600],
+      "position": [
+        532,
+        600
+      ],
       "direction": "front",
       "visible": false,
       "exclusive_group": "workstation"

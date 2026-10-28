@@ -5,10 +5,18 @@
   "render_mode": "sprite_frames",
   "fallback_render_mode": "full_body",
   "animations": "res://config/animations/spirit.json",
-  "canvas_size": [2048, 2048],
-  "content_bounds": [406, 86, 1231, 1871],
+  "canvas_size": [
+    256,
+    384
+  ],
+  "content_bounds": [
+    13,
+    45,
+    230,
+    339
+  ],
   "anchor": "content_bottom_center",
-  "default_scale": 0.25,
+  "default_scale": 0.8708,
   "default_height": 300,
   "default_facing": "front",
   "default_state": "idle",
@@ -25,11 +33,13 @@
       "front_left"
     ],
     "missing_views": [],
-    "missing_states": ["sitting", "carrying", "lying", "working"],
+    "missing_states": [
+      "carrying"
+    ],
     "feet_anchor": "bottom_center",
     "baseline_scale": 0.871,
     "mirroring_is_not_a_turn": true,
-    "notes": "Eight authored standing directions and eight four-frame walk cycles are available. Sitting, carrying, lying and computer-use poses are not authored yet. Directions are visual orientations: front means facing the camera; movement up on screen uses the back view."
+    "notes": "All animation families use the original eight-direction model; no separate shoes."
   },
   "states": {
     "idle": {

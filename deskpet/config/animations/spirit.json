@@ -21,10 +21,10 @@
       ],
       "fps": 3.5,
       "loop": true,
-      "scale": 0.6061,
+      "scale": 0.8708,
       "canvas": [
-        352,
-        512
+        256,
+        384
       ]
     },
     "walk_front": {
@@ -34,12 +34,12 @@
         "res://assets/character/spirit/walk/front_03.png",
         "res://assets/character/spirit/walk/front_04.png"
       ],
-      "fps": 8.0,
+      "fps": 8,
       "loop": true,
-      "scale": 2.069,
+      "scale": 0.8708,
       "canvas": [
-        96,
-        160
+        256,
+        384
       ]
     },
     "idle_front_right": {
@@ -61,12 +61,12 @@
         "res://assets/character/spirit/walk/front_right_03.png",
         "res://assets/character/spirit/walk/front_right_04.png"
       ],
-      "fps": 8.0,
+      "fps": 8,
       "loop": true,
-      "scale": 2.069,
+      "scale": 0.8708,
       "canvas": [
-        96,
-        160
+        256,
+        384
       ]
     },
     "idle_right": {
@@ -88,12 +88,12 @@
         "res://assets/character/spirit/walk/right_03.png",
         "res://assets/character/spirit/walk/right_04.png"
       ],
-      "fps": 8.0,
+      "fps": 8,
       "loop": true,
-      "scale": 2.069,
+      "scale": 0.8708,
       "canvas": [
-        96,
-        160
+        256,
+        384
       ]
     },
     "idle_back_right": {
@@ -115,12 +115,12 @@
         "res://assets/character/spirit/walk/back_right_03.png",
         "res://assets/character/spirit/walk/back_right_04.png"
       ],
-      "fps": 8.0,
+      "fps": 8,
       "loop": true,
-      "scale": 2.069,
+      "scale": 0.8708,
       "canvas": [
-        96,
-        160
+        256,
+        384
       ]
     },
     "idle_back": {
@@ -142,12 +142,12 @@
         "res://assets/character/spirit/walk/back_03.png",
         "res://assets/character/spirit/walk/back_04.png"
       ],
-      "fps": 8.0,
+      "fps": 8,
       "loop": true,
-      "scale": 2.069,
+      "scale": 0.8708,
       "canvas": [
-        96,
-        160
+        256,
+        384
       ]
     },
     "idle_back_left": {
@@ -169,12 +169,12 @@
         "res://assets/character/spirit/walk/back_left_03.png",
         "res://assets/character/spirit/walk/back_left_04.png"
       ],
-      "fps": 8.0,
+      "fps": 8,
       "loop": true,
-      "scale": 2.069,
+      "scale": 0.8708,
       "canvas": [
-        96,
-        160
+        256,
+        384
       ]
     },
     "idle_left": {
@@ -196,12 +196,12 @@
         "res://assets/character/spirit/walk/left_03.png",
         "res://assets/character/spirit/walk/left_04.png"
       ],
-      "fps": 8.0,
+      "fps": 8,
       "loop": true,
-      "scale": 2.069,
+      "scale": 0.8708,
       "canvas": [
-        96,
-        160
+        256,
+        384
       ]
     },
     "idle_front_left": {
@@ -223,13 +223,166 @@
         "res://assets/character/spirit/walk/front_left_03.png",
         "res://assets/character/spirit/walk/front_left_04.png"
       ],
-      "fps": 8.0,
+      "fps": 8,
       "loop": true,
-      "scale": 2.069,
+      "scale": 0.8708,
       "canvas": [
-        96,
-        160
+        256,
+        384
       ]
+    },
+    "sit_arrive": {
+      "frames": [
+        "res://assets/character/spirit/directions/right.png"
+      ],
+      "fps": 6,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "chair_grip": {
+      "frames": [
+        "res://assets/character/spirit/sit/front_01.png"
+      ],
+      "fps": 6,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "chair_pull": {
+      "frames": [
+        "res://assets/character/spirit/sit/front_02.png"
+      ],
+      "fps": 6,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "sit_align": {
+      "frames": [
+        "res://assets/character/spirit/sit/front_04.png"
+      ],
+      "fps": 6,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "sit_lower": {
+      "frames": [
+        "res://assets/character/spirit/sit/front_05.png"
+      ],
+      "fps": 6,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "sit_front": {
+      "frames": [
+        "res://assets/character/spirit/sit/front_06.png"
+      ],
+      "fps": 6,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ],
+      "foreground_cutoff": 330
+    },
+    "sit_turn": {
+      "frames": [
+        "res://assets/character/spirit/sit/front_03.png"
+      ],
+      "fps": 6,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ]
+    },
+    "rest_enter": {
+      "frames": [
+        "res://assets/character/spirit/rest/front_01.png",
+        "res://assets/character/spirit/rest/front_02.png"
+      ],
+      "fps": 4,
+      "loop": false,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ],
+      "foreground_cutoff": 330
+    },
+    "rest_loop": {
+      "frames": [
+        "res://assets/character/spirit/rest/front_03.png",
+        "res://assets/character/spirit/rest/front_04.png"
+      ],
+      "fps": 2,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ],
+      "foreground_cutoff": 330
+    },
+    "computer_sit_right": {
+      "frames": [
+        "res://assets/character/spirit/computer/front_01.png"
+      ],
+      "fps": 6,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ],
+      "foreground_cutoff": 330
+    },
+    "computer_reach": {
+      "frames": [
+        "res://assets/character/spirit/computer/front_02.png"
+      ],
+      "fps": 6,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ],
+      "foreground_cutoff": 330
+    },
+    "computer_type": {
+      "frames": [
+        "res://assets/character/spirit/computer/front_03.png",
+        "res://assets/character/spirit/computer/front_04.png"
+      ],
+      "fps": 5,
+      "loop": true,
+      "scale": 0.8708,
+      "canvas": [
+        256,
+        384
+      ],
+      "foreground_cutoff": 330
     }
   },
   "direction_idle": {
@@ -252,5 +405,5 @@
     "left": "walk_left",
     "front_left": "walk_front_left"
   },
-  "notes": "Generated from assets/sprite_manifest.json by deskpet/tools/prepare_sprite_sheets.py workflow. Scales target a 300 px character height."
+  "notes": "Unified with 素材/八方向图.png. No separate footwear. All clips use the same canvas and display scale."
 }

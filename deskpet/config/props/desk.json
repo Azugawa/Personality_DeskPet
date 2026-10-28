@@ -13,17 +13,32 @@
     "left": "res://assets/props/desk/left.png",
     "front_left": "res://assets/props/desk/front_left.png"
   },
-  "canvas": [160, 160],
-  "scale": 1.14,
+  "canvas": [
+    160,
+    160
+  ],
+  "scale": 1.9,
   "default_direction": "front",
   "anchor": "bottom_center",
-  "work_surface_uv": [0.5, 0.67],
-  "lean_anchor_uv": [0.5, 0.72],
+  "work_surface_uv": [
+    0.5,
+    0.67
+  ],
+  "lean_anchor_uv": [
+    0.5,
+    0.72
+  ],
   "shadow": {
     "enabled": true,
     "shape": "ellipse",
-    "center": [0, 0],
-    "size": [146, 26],
+    "center": [
+      0,
+      0
+    ],
+    "size": [
+      146,
+      26
+    ],
     "color": "#00000055",
     "core_color": "#00000030",
     "core_scale": 0.62

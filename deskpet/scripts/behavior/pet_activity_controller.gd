@@ -79,6 +79,24 @@ func request(activity_id: String) -> bool:
 	if _state_machine == null or _state_machine.is_busy():
 		push_warning("[PetActivityController] Activity '%s' rejected while the character is busy." % activity_id)
 		return false
+	if str(activity.get("kind", "")) in ["rest_sequence", "seated_activity"]:
+		if _state_machine.current_state == "seated":
+			var followup := str(activity.get("followup", ""))
+			if not followup.is_empty():
+				_pending_id = activity_id
+				_pending_activity = activity
+				if _state_machine.request_command({"action": followup}, ActionStateMachine.MANUAL):
+					activity_started.emit(activity_id)
+					return true
+				_pending_id = ""
+				_pending_activity = {}
+				return false
+		if not _state_machine.request_sit(ActionStateMachine.MANUAL):
+			return false
+		_pending_id = activity_id
+		_pending_activity = activity
+		activity_started.emit(activity_id)
+		return true
 
 	var required_furniture: Array = activity.get("required_furniture", [])
 	for furniture_id_value in required_furniture:
@@ -123,6 +141,21 @@ func get_activity_snapshot() -> Array:
 
 
 func _on_action_finished(action_name: String, _source: String) -> void:
+	if not _pending_id.is_empty() and action_name == "sit":
+		var followup := str(_pending_activity.get("followup", ""))
+		if not followup.is_empty() and _state_machine.request_command({"action": followup}, ActionStateMachine.MANUAL):
+			return
+		var finished_id := _pending_id
+		_pending_id = ""
+		_pending_activity = {}
+		activity_finished.emit(finished_id)
+		return
+	if not _pending_id.is_empty() and action_name in ["rest", "computer"]:
+		var finished_id := _pending_id
+		_pending_id = ""
+		_pending_activity = {}
+		activity_finished.emit(finished_id)
+		return
 	if _pending_id.is_empty() or action_name != "walk":
 		return
 	var activity_id := _pending_id
@@ -142,7 +175,7 @@ func _on_action_finished(action_name: String, _source: String) -> void:
 
 
 func _on_action_cancelled(action_name: String, _reason: String) -> void:
-	if _pending_id.is_empty() or action_name != "walk":
+	if _pending_id.is_empty() or action_name not in ["walk", "sit", "rest", "computer"]:
 		return
 	var activity_id := _pending_id
 	_pending_id = ""

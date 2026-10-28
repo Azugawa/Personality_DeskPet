@@ -14,6 +14,7 @@ var last_error: String = ""
 var _sprite: AnimatedSprite2D = null
 var _animations: Dictionary = {}
 var _frames: SpriteFrames = null
+var _foreground: Sprite2D = null
 
 
 func setup(sprite_node: AnimatedSprite2D, config: Dictionary) -> bool:
@@ -59,6 +60,7 @@ func setup(sprite_node: AnimatedSprite2D, config: Dictionary) -> bool:
 			"loop": bool(clip.get("loop", true)),
 			"fps": maxf(0.1, float(clip.get("fps", 8.0))),
 			"frame_count": (frame_paths as Array).size(),
+			"foreground_cutoff": int(clip.get("foreground_cutoff", 0)),
 		}
 
 	_sprite.sprite_frames = _frames
@@ -67,6 +69,13 @@ func setup(sprite_node: AnimatedSprite2D, config: Dictionary) -> bool:
 	if not _sprite.animation_finished.is_connected(_on_sprite_animation_finished):
 		_sprite.animation_finished.connect(_on_sprite_animation_finished)
 	_sprite.visible = true
+	if _foreground == null:
+		_foreground = Sprite2D.new()
+		_foreground.name = "AboveWorkSurface"
+		_foreground.centered = false
+		_foreground.region_enabled = true
+		_foreground.z_index = 2
+		_sprite.add_child(_foreground)
 	return true
 
 
@@ -97,6 +106,20 @@ func stop() -> void:
 	if _sprite != null:
 		_sprite.stop()
 	current_animation = ""
+	if _foreground != null:
+		_foreground.visible = false
+
+
+func _process(_delta: float) -> void:
+	if _foreground == null or not _animations.has(current_animation):
+		return
+	var clip: Dictionary = _animations[current_animation]
+	var cutoff := int(clip.get("foreground_cutoff", 0))
+	_foreground.visible = cutoff > 0
+	if cutoff > 0:
+		_foreground.texture = _frames.get_frame_texture(_sprite.animation, _sprite.frame)
+		_foreground.region_rect = Rect2(0, 0, (clip["canvas"] as Vector2).x, cutoff)
+		_foreground.offset = _sprite.offset
 
 
 func is_playing() -> bool:

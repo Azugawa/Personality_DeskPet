@@ -13,6 +13,7 @@ signal action_finished(action_name: String, source: String)
 signal action_cancelled(action_name: String, source: String)
 signal command_rejected(action_name: String, reason: String)
 signal auto_pause_changed(paused: bool)
+signal rest_stage_changed(stage: String)
 
 const MANUAL := "manual"
 const AUTO := "auto"
@@ -35,6 +36,9 @@ var _walk_token: int = 0
 var _manual_hold_until: int = 0
 var _queue: Array[Dictionary] = []
 var _previous_state: String = "idle"
+var rest_stage: String = ""
+var _rest_active: bool = false
+var _rest_layers: Dictionary = {}
 
 
 func setup(character: Character, furniture: FurnitureManager, behavior_config: Dictionary) -> bool:
@@ -87,6 +91,8 @@ func set_manual_direction(direction: Vector2) -> void:
 			return
 
 	var normalized := direction.normalized()
+	if current_state == "seated":
+		_release_rest()
 	var facing := Character.direction_from_vector(normalized)
 	var already_manual_walking := _busy and current_source == MANUAL and current_action == "walk"
 	if not (already_manual_walking and _character.get_current_direction() == facing):
@@ -225,6 +231,7 @@ func _execute(command: Dictionary, source: String) -> bool:
 	var action_name := str(command.get("action", ""))
 	match action_name:
 		"idle":
+			_release_rest()
 			var previous_action := current_action
 			var previous_source := current_source
 			_walk_token += 1
@@ -257,9 +264,12 @@ func _execute(command: Dictionary, source: String) -> bool:
 		"furniture_toggle":
 			return _toggle_furniture(str(command.get("id", "")), source)
 		"sit":
-			_reject("sit", "missing authored sit pose; structure reserved")
-			return false
+			return _start_rest_sequence(source)
+		"rest", "computer":
+			return _start_seated_activity(action_name, source)
 		"stand":
+			if current_state == "seated":
+				return request_idle(source, "front")
 			_reject("stand", "character is not seated")
 			return false
 		_:
@@ -268,6 +278,8 @@ func _execute(command: Dictionary, source: String) -> bool:
 
 
 func _start_walk(target: Vector2, source: String) -> bool:
+	if current_state == "seated":
+		_release_rest()
 	var delta := target - _character.position
 	if delta.length_squared() < 4.0:
 		_reject("walk_to", "target is too close")
@@ -296,6 +308,9 @@ func _start_walk(target: Vector2, source: String) -> bool:
 
 
 func _start_head_pat(source: String) -> bool:
+	if current_state == "seated":
+		_reject("head_pat", "leave the seat before this reaction")
+		return false
 	if not _character.has_animation("idle_" + _character.get_current_direction()):
 		_reject("head_pat", "no idle clip for the current direction")
 		return false
@@ -346,10 +361,11 @@ func _finish_action(action_name: String, source: String, return_to_idle: bool = 
 	_manual_vector = Vector2.ZERO
 	current_action = ""
 	current_source = ""
-	action_finished.emit(finished_action, finished_source)
 	if return_to_idle:
 		_set_state("idle")
 		_character.play_idle()
+	# Complete the old action before observers can begin a follow-up action.
+	action_finished.emit(finished_action, finished_source)
 	_drain_queue()
 
 
@@ -358,6 +374,7 @@ func _cancel_current(reason: String) -> void:
 	var source := current_source
 	_walk_token += 1
 	_cancel_tweens()
+	_release_rest()
 	_manual_walk = false
 	_manual_vector = Vector2.ZERO
 	_busy = false
@@ -435,6 +452,160 @@ func _read_vec2(value: Variant, fallback: Vector2) -> Vector2:
 	if array.size() != 2:
 		return fallback
 	return Vector2(float(array[0]), float(array[1]))
+
+
+func _start_rest_sequence(source: String) -> bool:
+	for clip in ["sit_arrive", "chair_grip", "chair_pull", "sit_align", "sit_lower", "sit_front"]:
+		if not _character.has_animation(clip):
+			_reject("sit", "missing authored clip: " + clip)
+			return false
+	var chair := _furniture.get_view("chair")
+	var desk := _furniture.get_view("desk")
+	if chair == null or desk == null:
+		_reject("sit", "chair and desk are required")
+		return false
+	_release_rest()
+	_cancel_tweens()
+	var settings: Dictionary = _config.get("rest_sequence", {})
+	var seat := _read_vec2(settings.get("seat_position"), Vector2(440, 620))
+	var approach := seat + Vector2(-98, 0)
+	var chair_start := seat
+	var chair_end := chair_start + Vector2(0, -14)
+	# Furniture transforms are set before revealing. Desk is never animated in
+	# position or scale during this sequence; only its opacity changes.
+	chair.position = chair_start
+	desk.position = seat + Vector2(0, 34)
+	chair.set_direction("front")
+	desk.set_direction("front")
+	_furniture.set_visible("computer", false, false)
+	chair.set_visible_immediate(false)
+	desk.set_visible_immediate(false)
+	_rest_layers = {"character": _character.z_index, "chair": chair.z_index, "desk": desk.z_index}
+	var computer := _furniture.get_view("computer")
+	if computer != null:
+		_rest_layers["computer"] = computer.z_index
+	chair.z_index = 0
+	_character.z_index = 1
+	desk.z_index = 2
+	_rest_active = true
+	_busy = true
+	_interruptible = true
+	_manual_walk = false
+	_manual_vector = Vector2.ZERO
+	current_action = "sit"
+	current_source = source
+	_set_state("walk")
+	_set_rest_stage("approach")
+	action_started.emit("sit", source)
+	var duration := maxf(0.25, _character.position.distance_to(approach) / _walk_speed())
+	_character.play_walk(Character.direction_from_vector(approach - _character.position))
+	_action_tween = create_tween()
+	_action_tween.tween_property(_character, "position", approach, duration)
+	_action_tween.parallel().tween_callback(func() -> void:
+		chair.set_visible_immediate(true)
+		desk.set_visible_immediate(true)
+		chair.modulate.a = 0.0
+		desk.modulate.a = 0.0
+	).set_delay(duration * 0.35)
+	_action_tween.parallel().tween_property(chair, "modulate:a", 1.0, duration * 0.45).set_delay(duration * 0.4)
+	_action_tween.parallel().tween_property(desk, "modulate:a", 1.0, duration * 0.45).set_delay(duration * 0.4)
+	_action_tween.tween_callback(func() -> void:
+		_set_state("interact")
+		_rest_pose("arrive", "sit_arrive")
+	)
+	_action_tween.tween_interval(0.18)
+	_action_tween.tween_callback(_rest_pose.bind("grip", "chair_grip"))
+	_action_tween.tween_interval(0.28)
+	_action_tween.tween_callback(_rest_pose.bind("pull", "chair_pull"))
+	_action_tween.tween_property(chair, "position", chair_end, 0.42).set_trans(Tween.TRANS_SINE)
+	_action_tween.tween_interval(0.12)
+	_action_tween.tween_callback(func() -> void:
+		_set_rest_stage("enter_gap")
+		_character.play_walk("right")
+	)
+	_action_tween.tween_property(_character, "position", seat, 1.05)
+	_action_tween.tween_callback(_rest_pose.bind("turn", "sit_turn"))
+	_action_tween.tween_interval(0.14)
+	_action_tween.tween_callback(_rest_pose.bind("align", "sit_align"))
+	_action_tween.tween_interval(0.18)
+	_action_tween.tween_callback(_rest_pose.bind("lower", "sit_lower"))
+	_action_tween.tween_interval(0.22)
+	_action_tween.tween_callback(func() -> void:
+		_rest_pose("seated", "sit_front")
+		_character.current_direction = "front"
+		_set_state("seated")
+		_finish_action("sit", source, false)
+	)
+	return true
+
+
+func _rest_pose(stage: String, clip: String) -> void:
+	_set_rest_stage(stage)
+	_character.play_animation(clip)
+
+
+func _start_seated_activity(activity: String, source: String) -> bool:
+	if current_state != "seated":
+		_reject(activity, "sit down before starting a seated activity")
+		return false
+	var clips := ["rest_enter", "rest_loop"] if activity == "rest" else ["computer_sit_right", "computer_reach", "computer_type"]
+	for clip in clips:
+		if not _character.has_animation(clip):
+			_reject(activity, "missing clip: " + clip)
+			return false
+	_cancel_tweens()
+	_busy = true
+	_interruptible = true
+	current_action = activity
+	current_source = source
+	action_started.emit(activity, source)
+	_action_tween = create_tween()
+	if activity == "rest":
+		_furniture.set_visible("computer", false, false)
+		_furniture.set_visible("desk", true, false)
+		_furniture.get_view("chair").set_direction("front")
+		_character.current_direction = "front"
+		_rest_pose("lean", "rest_enter")
+		_action_tween.tween_interval(0.5)
+		_action_tween.tween_callback(_rest_pose.bind("resting", "rest_loop"))
+	else:
+		var computer := _furniture.get_view("computer")
+		if computer == null:
+			_finish_action(activity, source, false)
+			return false
+		_furniture.set_visible("desk", false, false)
+		_furniture.get_view("chair").set_direction("right")
+		computer.set_direction("right")
+		computer.position = _character.position + Vector2(120, 28)
+		computer.z_index = 2
+		computer.set_visible_immediate(true)
+		_character.current_direction = "right"
+		_rest_pose("computer_seated", "computer_sit_right")
+		_action_tween.tween_interval(0.2)
+		_action_tween.tween_callback(_rest_pose.bind("reach_keyboard", "computer_reach"))
+		_action_tween.tween_interval(0.25)
+		_action_tween.tween_callback(_rest_pose.bind("typing", "computer_type"))
+	_action_tween.tween_callback(func() -> void: _finish_action(activity, source, false))
+	return true
+
+
+func _set_rest_stage(stage: String) -> void:
+	rest_stage = stage
+	rest_stage_changed.emit(stage)
+
+
+func _release_rest() -> void:
+	if not _rest_active:
+		return
+	_rest_active = false
+	_character.z_index = int(_rest_layers.get("character", 0))
+	for id in ["chair", "desk", "computer"]:
+		var view := _furniture.get_view(id)
+		if view != null:
+			view.z_index = int(_rest_layers.get(id, 0))
+			view.set_visible_immediate(view.visible)
+	_rest_layers.clear()
+	_set_rest_stage("")
 
 
 func _reject(action_name: String, reason: String) -> void:
