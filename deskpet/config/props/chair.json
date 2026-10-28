@@ -6,7 +6,7 @@
   "directions": {
     "front": "res://assets/props/chair/front.png",
     "front_right": "res://assets/props/chair/front_right.png",
-    "right": "res://assets/props/chair/right.png",
+    "right": "res://assets/props/chair/back_left.png",
     "back_right": "res://assets/props/chair/back_right.png",
     "back": "res://assets/props/chair/back.png",
     "back_left": "res://assets/props/chair/back_left.png",
