@@ -474,7 +474,7 @@ func _start_rest_sequence(source: String) -> bool:
 	# Furniture transforms are set before revealing. Desk is never animated in
 	# position or scale during this sequence; only its opacity changes.
 	chair.position = chair_start
-	desk.position = seat + Vector2(0, 34)
+	desk.position = seat + Vector2(0, float(settings.get("desk_forward_offset", 50.0)))
 	chair.set_direction("front")
 	desk.set_direction("front")
 	_furniture.set_visible("computer", false, false)

@@ -7,6 +7,9 @@
   "walk_speed": 76.0,
   "walk_bounds": [110, 530, 580, 660],
   "auto_walk_distance": [45, 120],
+  "rest_sequence": {
+    "desk_forward_offset": 50.0
+  },
   "cooldowns_seconds": {
     "walk": 8.0,
     "look": 2.0
