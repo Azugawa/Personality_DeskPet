@@ -564,6 +564,7 @@ func _start_seated_activity(activity: String, source: String) -> bool:
 		_furniture.set_visible("computer", false, false)
 		_furniture.set_visible("desk", true, false)
 		_furniture.get_view("chair").set_direction("front")
+		_furniture.get_view("chair").position = _character.position + Vector2(0, -14)
 		_character.current_direction = "front"
 		_rest_pose("lean", "rest_enter")
 		_action_tween.tween_interval(0.5)
@@ -575,6 +576,8 @@ func _start_seated_activity(activity: String, source: String) -> bool:
 			return false
 		_furniture.set_visible("desk", false, false)
 		_furniture.get_view("chair").set_direction("right")
+		# Align the side-view cushion under the hips, leaving its front edge visible.
+		_furniture.get_view("chair").position = _character.position + Vector2(-14, 32)
 		computer.set_direction("right")
 		computer.position = _character.position + Vector2(120, 28)
 		computer.z_index = 2
