@@ -342,7 +342,11 @@ func _on_weather_ready(result: Dictionary) -> void:
 	var advice_lines: Array[String] = []
 	for item in advice:
 		advice_lines.append("• " + str(item))
-	_weather_advice.text = "建议：\n" + "\n".join(advice_lines)
+	var attribution: Array = result.get("attribution", [])
+	var attribution_text := "天气数据由和风天气提供"
+	if not attribution.is_empty():
+		attribution_text += "（%s）" % str(attribution[0])
+	_weather_advice.text = "建议：\n" + "\n".join(advice_lines) + "\n\n" + attribution_text
 
 
 func _on_weather_failed(message: String) -> void:
@@ -522,6 +526,9 @@ func _on_drive_started(_scan_id: String) -> void:
 func _on_drive_progress(progress: Dictionary) -> void:
 	if _drive_status == null:
 		return
+	if progress.has("message"):
+		_drive_status.text = str(progress.get("message", ""))
+		return
 	_drive_status.text = "已扫描 %d 个文件，匹配 %d 个，累计 %s" % [
 		int(progress.get("files_scanned", 0)),
 		int(progress.get("matched", 0)),
@@ -551,7 +558,9 @@ func _render_drive(result: Dictionary) -> void:
 	var parts: Array[String] = []
 	for category in totals.keys():
 		parts.append("%s %s" % [_category_label(str(category)), _format_size(int(totals[category]))])
-	_drive_summary.text = "共 %d 个可整理文件，合计 %s。%s\n建议手动移动到其他盘；本功能不会删除或移动文件。" % [
+	var source := "Windows 搜索索引" if str(result.get("source", "")) == "windows_search" else "定向扫描"
+	_drive_summary.text = "来源：%s。共 %d 个可整理文件，合计 %s。%s\n建议手动移动到其他盘；本功能不会删除或移动文件。" % [
+		source,
 		int(result.get("matched", 0)),
 		_format_size(int(result.get("bytes", 0))),
 		"，".join(parts),

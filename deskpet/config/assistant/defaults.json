@@ -67,6 +67,7 @@
     "large_file_mb": 100,
     "document_mb": 50,
     "max_scan_seconds": 60,
+    "index_max_seconds": 10,
     "max_files": 200000,
     "max_candidates": 200,
     "auto_index_days": 7,

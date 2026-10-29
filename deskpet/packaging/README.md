@@ -18,6 +18,6 @@ SHA-256 用于完整性校验，不能替代代码签名。当前安装包没有
 
 6. 构建脚本会先把 `SentinelHelper.cs` 和 `DriveScan.cs` 编译为 `deskpet/bin/DeskPetSentinel.exe`，再随 pck 导出；首次运行时解压到 `%LOCALAPPDATA%\DeskPet\bin`，因此增量 pck 更新也会带上新助手。
 7. 安装器默认勾选“开机自动启动”（写入 HKCU Run，卸载时删除）；临时设置的“开机自启”勾选框操作同一个注册表值。
-8. 哨兵只读取 CPU 占用、前台程序、空闲时间和 C 盘空间，不读取 CPU 温度或内存；C 盘分析只读、有时间/文件数上限，绝不自动删除或移动文件。
+8. 哨兵只读取 CPU 占用、前台程序、空闲时间和 C 盘空间，不读取 CPU 温度或内存；C 盘分析先查 Windows Search 索引，索引不可用或为空时回退到定向扫描，只读、有时间/文件数上限，绝不自动删除或移动文件。
 
 验证：packaging/smoke_transitions.gd 检查六个有向活动切换。原 tests/sequence_review.gd 记录历史四菜单流程，其 lie 命令不再适用于三菜单版本。新增后端测试：smoke_assistant_core.gd、smoke_reminders.gd、smoke_sentinel.gd、smoke_work_mode.gd、smoke_weather.gd、smoke_drive_analysis.gd。运行方式统一为 `Godot_v4.7.2-stable_win64_console.exe --headless --path deskpet --script res://packaging/<测试>.gd`。

@@ -28,6 +28,10 @@ internal static class Program
         {
             return Autostart.Run(args);
         }
+        if (HasArgument(args, "--scan-index"))
+        {
+            return DriveScan.RunIndex(args);
+        }
         if (HasArgument(args, "--scan"))
         {
             return DriveScan.Run(args);

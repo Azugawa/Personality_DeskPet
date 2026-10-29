@@ -16,6 +16,7 @@ class MockWeather:
 			return {"ok": false, "error": "mock network failure"}
 		if _url.contains("/weather/v1/current/"):
 			return {"ok": true, "data": {
+				"metadata": {"attributions": ["https://developer.qweather.com/attribution.html"]},
 				"condition": {"text": "多云", "code": "101"},
 				"temperature": {"value": 18.0, "unit": "°C"},
 				"feelsLike": {"value": 17.0, "unit": "°C"},
@@ -94,6 +95,7 @@ func _test_refresh() -> void:
 	assert(float((result.get("current", {}) as Dictionary).get("temp_c", 0.0)) == 18.0)
 	assert(int((result.get("current", {}) as Dictionary).get("humidity", 0)) == 60)
 	assert(int(result.get("resolution_km", 0)) == 1)
+	assert((result.get("attribution", []) as Array).size() == 1)
 	var today: Dictionary = result.get("today", {})
 	var tomorrow: Dictionary = result.get("tomorrow", {})
 	assert(str(today.get("date", "")) == "2026-10-29")

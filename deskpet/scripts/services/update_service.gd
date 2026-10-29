@@ -1,5 +1,5 @@
 extends Node
-const VERSION := "0.2.9"
+const VERSION := "0.3.0"
 const FEED := "https://github.com/Azugawa/Personality_DeskPet/releases/latest/download/update.json"
 const PREFIX := "https://github.com/Azugawa/Personality_DeskPet/releases/download/"
 var update_config: Dictionary = {}

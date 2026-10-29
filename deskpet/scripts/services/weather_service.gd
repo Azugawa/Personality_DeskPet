@@ -243,6 +243,10 @@ func _build_result(
 		"wind_ms": _metric(_dictionary(now_data.get("wind", {})).get("speed", {})),
 		"precip_mm": _metric(_dictionary(now_data.get("precipitation", {})).get("amount", {})),
 	}
+	var metadata: Dictionary = _dictionary(now_data.get("metadata", {}))
+	var attribution: Array = []
+	if typeof(metadata.get("attributions")) == TYPE_ARRAY:
+		attribution = (metadata.get("attributions") as Array).duplicate(true)
 	var hourly: Array = []
 	for item_value in hourly_data.get("hours", []):
 		var item: Dictionary = item_value
@@ -300,6 +304,7 @@ func _build_result(
 		"daily": daily,
 		"today": today,
 		"tomorrow": tomorrow,
+		"attribution": attribution,
 	}
 	var max_delta := 0.0
 	var min_delta := 0.0

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.OleDb;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -68,6 +69,193 @@ internal static class DriveScan
             catch { }
             return 1;
         }
+    }
+
+    public static int RunIndex(string[] args)
+    {
+        var options = Parse(args);
+        if (!options.Valid)
+        {
+            return 2;
+        }
+        Directory.CreateDirectory(options.OutDir);
+        try
+        {
+            var config = LoadConfig(options.ConfigPath);
+            var result = IndexScan(config, options);
+            AtomicWrite(Path.Combine(options.OutDir, "scan-" + options.ScanId + ".json"),
+                new JavaScriptSerializer().Serialize(result));
+            return 0;
+        }
+        catch (Exception error)
+        {
+            var failure = new Dictionary<string, object>
+            {
+                { "schema", Schema },
+                { "scan_id", options.ScanId },
+                { "source", "windows_search" },
+                { "available", false },
+                { "done", true },
+                { "error", error.Message }
+            };
+            try
+            {
+                AtomicWrite(Path.Combine(options.OutDir, "scan-" + options.ScanId + ".json"),
+                    new JavaScriptSerializer().Serialize(failure));
+            }
+            catch { }
+            return 1;
+        }
+    }
+
+    private static Dictionary<string, object> IndexScan(Dictionary<string, object> config, ScanOptions options)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var startedAt = NowUnix();
+        var maxSeconds = Math.Min(GetInt(config, "max_seconds", 60), GetInt(config, "index_max_seconds", 10));
+        var maxFiles = GetInt(config, "max_files", 200000);
+        var largeMb = GetInt(config, "large_file_mb", 100);
+        var documentMb = GetInt(config, "document_mb", 50);
+        var maxCandidates = GetInt(config, "max_candidates", 200);
+        var categories = GetDictionary(config, "categories");
+        var extensionCategory = new Dictionary<string, string>();
+        foreach (var pair in categories)
+        {
+            foreach (var extension in ToStringList(pair.Value))
+            {
+                var normalized = extension.ToLowerInvariant();
+                if (!normalized.StartsWith(".")) normalized = "." + normalized;
+                extensionCategory[normalized] = pair.Key;
+            }
+        }
+        var excludedExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var extension in ToStringList(GetValue(config, "exclude_extensions")))
+        {
+            excludedExtensions.Add(extension.ToLowerInvariant());
+        }
+        var excludedDirs = new List<string>();
+        foreach (var directory in ToStringList(GetValue(config, "exclude_dirs")))
+        {
+            excludedDirs.Add(directory.ToLowerInvariant());
+        }
+        var userRoot = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var minMb = Math.Min(largeMb, documentMb);
+        var minBytes = (long)minMb * Megabyte;
+        var sql = "SELECT System.ItemPathDisplay, System.Size, System.DateModified FROM SYSTEMINDEX " +
+                  "WHERE System.Size >= " + minBytes +
+                  " AND System.ItemPathDisplay LIKE '" + userRoot.Replace("'", "''") + "\\%'";
+        var totals = new Dictionary<string, long>();
+        var candidates = new List<Dictionary<string, object>>();
+        var matched = 0;
+        var matchedBytes = 0L;
+        var filesScanned = 0;
+        var truncated = false;
+        var cancelled = false;
+        var cancelFile = Path.Combine(options.OutDir, "cancel-" + options.ScanId);
+        using (var connection = new OleDbConnection("Provider=Search.CollatorDSO;Extended Properties='Application=Windows';"))
+        using (var command = connection.CreateCommand())
+        {
+            connection.Open();
+            command.CommandText = sql;
+            command.CommandTimeout = Math.Max(2, maxSeconds);
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    if (stopwatch.Elapsed.TotalSeconds > maxSeconds || filesScanned >= maxFiles)
+                    {
+                        truncated = true;
+                        break;
+                    }
+                    if (File.Exists(cancelFile))
+                    {
+                        cancelled = true;
+                        break;
+                    }
+                    var path = Convert.ToString(reader.GetValue(0));
+                    if (path.Length == 0) continue;
+                    filesScanned++;
+                    if (!path.StartsWith(userRoot, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (IsExcludedPath(path, excludedDirs)) continue;
+                    var extension = Path.GetExtension(path).ToLowerInvariant();
+                    if (excludedExtensions.Contains(extension)) continue;
+                    string category;
+                    if (!extensionCategory.TryGetValue(extension, out category)) continue;
+                    long size;
+                    try { size = Convert.ToInt64(reader.GetValue(1)); }
+                    catch { continue; }
+                    var threshold = category == "document" ? documentMb : largeMb;
+                    if (size < threshold * Megabyte) continue;
+                    matched++;
+                    matchedBytes += size;
+                    long total;
+                    totals.TryGetValue(category, out total);
+                    totals[category] = total + size;
+                    if (candidates.Count < maxCandidates * 20)
+                    {
+                        long modified = 0;
+                        try
+                        {
+                            var value = reader.GetValue(2);
+                            if (value is DateTime)
+                            {
+                                modified = ToUnix((DateTime)value);
+                            }
+                        }
+                        catch { }
+                        candidates.Add(new Dictionary<string, object>
+                        {
+                            { "path", path },
+                            { "size", size },
+                            { "category", category },
+                            { "mtime", modified },
+                            { "motw", HasMarkOfTheWeb(path) }
+                        });
+                    }
+                }
+            }
+        }
+        candidates.Sort((a, b) => Convert.ToInt64(b["size"]).CompareTo(Convert.ToInt64(a["size"])));
+        if (candidates.Count > maxCandidates)
+        {
+            candidates = candidates.GetRange(0, maxCandidates);
+        }
+        return new Dictionary<string, object>
+        {
+            { "schema", Schema },
+            { "scan_id", options.ScanId },
+            { "source", "windows_search" },
+            { "available", true },
+            { "started_at", startedAt },
+            { "finished_at", NowUnix() },
+            { "elapsed_ms", stopwatch.ElapsedMilliseconds },
+            { "files_scanned", filesScanned },
+            { "matched", matched },
+            { "bytes", matchedBytes },
+            { "denied", 0 },
+            { "truncated", truncated },
+            { "cancelled", cancelled },
+            { "candidates", candidates },
+            { "totals", totals },
+            { "done", true }
+        };
+    }
+
+    private static bool IsExcludedPath(string path, List<string> excluded)
+    {
+        var lower = path.ToLowerInvariant();
+        foreach (var item in excluded)
+        {
+            if (item.Contains("\\"))
+            {
+                if (lower.Contains(item)) return true;
+            }
+            else if (lower.Contains("\\" + item + "\\") || lower.EndsWith("\\" + item))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static ScanOptions Parse(string[] args)
