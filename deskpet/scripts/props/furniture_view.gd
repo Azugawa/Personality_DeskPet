@@ -45,7 +45,7 @@ func setup(config: Dictionary) -> bool:
 	_textures.clear()
 	for direction_name in (direction_texts as Dictionary).keys():
 		var path := str((direction_texts as Dictionary)[direction_name])
-		if path.is_empty() or not FileAccess.file_exists(path):
+		if path.is_empty() or not ResourceLoader.exists(path):
 			return _fail("Furniture '%s' direction '%s' texture is missing: %s" % [furniture_id, str(direction_name), path])
 		var texture := load(path) as Texture2D
 		if texture == null:

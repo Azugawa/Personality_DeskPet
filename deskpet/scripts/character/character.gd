@@ -126,7 +126,7 @@ func _setup_full_body(scene_character_config: Dictionary) -> bool:
 	var texture_path := str(profile.get("texture", ""))
 	if texture_path.is_empty():
 		return _fail_asset("Character profile '%s' does not define a texture path." % profile_path)
-	if not FileAccess.file_exists(texture_path):
+	if not ResourceLoader.exists(texture_path):
 		return _fail_asset("Character texture file is missing: %s" % texture_path)
 	var texture := load(texture_path) as Texture2D
 	if texture == null:

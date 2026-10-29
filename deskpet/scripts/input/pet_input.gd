@@ -15,11 +15,17 @@ const MOVE_ACTIONS := {
 	"pet_move_right": [KEY_D, KEY_RIGHT],
 }
 
+var activity_controller: PetActivityController
+
 var last_error: String = ""
 
 var _state_machine: ActionStateMachine = null
 var _character: Character = null
 var _brain: BehaviorBrain = null
+var _screen_anchor := Vector2i.ZERO
+var _window_anchor := Vector2i.ZERO
+var _head_pressed := false
+
 var _press_position: Vector2 = Vector2.ZERO
 var _press_on_character: bool = false
 var _dragging: bool = false
@@ -35,12 +41,27 @@ func setup(state_machine: ActionStateMachine, character: Character, brain: Behav
 		last_error = "State machine or character is null."
 		push_error("[PetInput] " + last_error)
 		return false
+	activity_controller = get_parent().get_node_or_null("ActivityController")
+	Input.set_custom_mouse_cursor(load("res://assets/ui/default_cursor.png"), Input.CURSOR_CROSS, Vector2(2, 12))
+	Input.set_custom_mouse_cursor(load("res://assets/ui/pat.png"), Input.CURSOR_POINTING_HAND, Vector2(12, 12))
+	Input.set_custom_mouse_cursor(load("res://assets/ui/click.png"), Input.CURSOR_HELP, Vector2(12, 12))
 	_ensure_movement_actions()
 	return true
 
 
 func _process(_delta: float) -> void:
+	if _pressed and not _head_pressed and _press_on_character:
+		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+			get_window().position = _window_anchor + DisplayServer.mouse_get_position() - _screen_anchor
+		else:
+			_pressed = false
+	if _character != null:
+		var menu: PetMenu = get_parent().get_node_or_null("PetMenu")
+		var hover := _is_head(get_viewport().get_mouse_position()) and activity_controller != null and activity_controller.current_activity == "idle" and not activity_controller.transitioning and _state_machine.current_state == "idle"
+		Input.set_default_cursor_shape(Input.CURSOR_CROSS if menu != null and menu.is_menu_visible() else (Input.CURSOR_POINTING_HAND if hover and _on_character_pixel() else (Input.CURSOR_CROSS if _on_character_pixel() else Input.CURSOR_ARROW)))
 	if _state_machine == null:
+		return
+	if activity_controller != null and (activity_controller.transitioning or activity_controller.current_activity != "idle"):
 		return
 	var direction := Input.get_vector("pet_move_left", "pet_move_right", "pet_move_up", "pet_move_down")
 	if direction.length_squared() > 0.001:
@@ -62,12 +83,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		if mouse_button.button_index == MOUSE_BUTTON_RIGHT and mouse_button.pressed:
 			if _character != null and _character.get_screen_bounds().has_point(mouse_button.position):
+				Input.set_default_cursor_shape(Input.CURSOR_HELP)
 				context_menu_requested.emit(mouse_button.position)
 				get_viewport().set_input_as_handled()
 
 
 func _handle_key(event: InputEventKey) -> void:
 	if _state_machine == null:
+		return
+	if activity_controller != null and (activity_controller.transitioning or activity_controller.current_activity != "idle"):
 		return
 	match event.physical_keycode:
 		KEY_TAB:
@@ -97,29 +121,28 @@ func _handle_key(event: InputEventKey) -> void:
 			get_viewport().set_input_as_handled()
 
 
+func _is_head(point: Vector2) -> bool:
+	if _character == null: return false
+	var bounds := _character.get_screen_bounds()
+	# segmentation.json head_torso_y=668, top=86, bottom=1957.
+	bounds.size.y *= (668.0 - 86.0) / 1871.0
+	return bounds.has_point(point)
+
+
 func _handle_left_button(event: InputEventMouseButton) -> void:
-	if event.pressed:
-		_pressed = true
-		_press_position = event.position
-		_press_on_character = _character != null and _character.get_screen_bounds().has_point(event.position)
-		_dragging = false
-	else:
-		if _pressed and _press_on_character and not _dragging:
-			_state_machine.request_head_pat(ActionStateMachine.MANUAL)
+	if not event.pressed:
 		_pressed = false
-		_press_on_character = false
-		_dragging = false
-
-
-func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and _pressed:
-		var motion := event as InputEventMouseMotion
-		if motion.button_mask & MOUSE_BUTTON_MASK_LEFT:
-			if not _dragging and motion.position.distance_to(_press_position) > 5.0:
-				_dragging = true
-			if _dragging:
-				get_window().position += Vector2i(int(round(motion.relative.x)), int(round(motion.relative.y)))
-				get_viewport().set_input_as_handled()
+		_head_pressed = false
+		return
+	_press_on_character = _character != null and _character.get_screen_bounds().has_point(event.position)
+	if not _press_on_character: return
+	_pressed = true
+	_screen_anchor = DisplayServer.mouse_get_position()
+	_window_anchor = get_window().position
+	_head_pressed = _is_head(event.position)
+	if _head_pressed and (activity_controller == null or (not activity_controller.transitioning and activity_controller.current_activity == "idle")):
+		_state_machine.request_head_pat(ActionStateMachine.MANUAL)
+	get_viewport().set_input_as_handled()
 
 
 func _ensure_movement_actions() -> void:
@@ -134,3 +157,17 @@ func _ensure_movement_actions() -> void:
 
 static func controls_text() -> String:
 	return "WASD/方向键移动  ·  左键点角色摸头  ·  右键角色切换动作  ·  按住拖动窗口  ·  Tab 自动/手动  ·  C 椅子  ·  G 桌子  ·  V 电脑  ·  H 摸头  ·  Z 坐下  ·  I 待机  ·  F1 调试面板"
+
+func _exit_tree() -> void:
+	Input.set_custom_mouse_cursor(null, Input.CURSOR_ARROW)
+	Input.set_custom_mouse_cursor(null, Input.CURSOR_POINTING_HAND)
+	Input.set_custom_mouse_cursor(null, Input.CURSOR_HELP)
+	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+
+func _on_character_pixel() -> bool:
+	var sprite := _character.animated_body
+	if sprite.sprite_frames == null: return false
+	var texture := sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
+	var point := sprite.to_local(_character.get_global_mouse_position()) - sprite.offset
+	if not Rect2(Vector2.ZERO, texture.get_size()).has_point(point): return false
+	return texture.get_image().get_pixelv(Vector2i(point)).a > 0.2

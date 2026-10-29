@@ -56,6 +56,7 @@ func setup(sprite_node: AnimatedSprite2D, config: Dictionary) -> bool:
 
 		_animations[animation_name] = {
 			"canvas": _read_vec2(clip.get("canvas"), Vector2(256.0, 384.0)),
+			"offset": _read_vec2(clip.get("offset"), Vector2.ZERO),
 			"scale": maxf(0.01, float(clip.get("scale", 1.0))),
 			"loop": bool(clip.get("loop", true)),
 			"fps": maxf(0.1, float(clip.get("fps", 8.0))),
@@ -95,7 +96,7 @@ func play(animation_name: String, restart: bool = false) -> bool:
 	var clip: Dictionary = _animations[animation_name]
 	var canvas: Vector2 = clip["canvas"]
 	var display_scale: float = float(clip["scale"])
-	_sprite.offset = Vector2(-canvas.x * 0.5, -canvas.y)
+	_sprite.offset = Vector2(-canvas.x * 0.5, -canvas.y) + (clip["offset"] as Vector2)
 	_sprite.scale = Vector2(display_scale, display_scale)
 	_sprite.play(animation_name)
 	current_animation = animation_name
@@ -152,7 +153,7 @@ func _load_texture(frame_path: String, animation_name: String) -> Texture2D:
 	if frame_path.is_empty():
 		_fail("Animation '%s' contains an empty frame path." % animation_name)
 		return null
-	if not FileAccess.file_exists(frame_path):
+	if not ResourceLoader.exists(frame_path):
 		_fail("Animation '%s' frame is missing: %s" % [animation_name, frame_path])
 		return null
 	var texture := load(frame_path) as Texture2D

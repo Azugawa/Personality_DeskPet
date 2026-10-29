@@ -57,7 +57,7 @@ func _setup_texture(config: Dictionary) -> bool:
 	var texture_path := str(config.get("texture", ""))
 	if texture_path.is_empty():
 		return _fail("background.type is 'texture' but background.texture is empty.")
-	if not FileAccess.file_exists(texture_path):
+	if not ResourceLoader.exists(texture_path):
 		return _fail("Background texture file is missing: %s" % texture_path)
 	var texture := load(texture_path) as Texture2D
 	if texture == null:

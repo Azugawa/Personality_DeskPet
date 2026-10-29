@@ -63,7 +63,7 @@ func _process(delta: float) -> void:
 	var next_position := _character.position + _manual_vector * _walk_speed() * delta
 	next_position.x = clampf(next_position.x, bounds.position.x, bounds.end.x)
 	next_position.y = clampf(next_position.y, bounds.position.y, bounds.end.y)
-	_character.position = next_position
+	# Walking animates in place; dragging is the only desktop relocation.
 	var direction := Character.direction_from_vector(_manual_vector)
 	if direction != _character.get_current_direction():
 		_character.play_walk(direction)
@@ -302,7 +302,7 @@ func _start_walk(target: Vector2, source: String) -> bool:
 	_walk_token += 1
 	var token := _walk_token
 	_movement_tween = create_tween()
-	_movement_tween.tween_property(_character, "position", target, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_movement_tween.tween_interval(duration)
 	_movement_tween.finished.connect(_on_walk_tween_finished.bind(token))
 	return true
 
@@ -320,11 +320,10 @@ func _start_head_pat(source: String) -> bool:
 	current_action = "head_pat"
 	current_source = source
 	_set_state("interact")
-	_character.play_idle()
-	_character.play_head_pat_reaction()
+	_character.play_animation("head_pat")
 	action_started.emit("head_pat", source)
 	_action_tween = create_tween()
-	_action_tween.tween_interval(0.75)
+	_action_tween.tween_interval(1.5)
 	_action_tween.finished.connect(_on_head_pat_finished.bind(source))
 	return true
 
@@ -467,8 +466,8 @@ func _start_rest_sequence(source: String) -> bool:
 	_release_rest()
 	_cancel_tweens()
 	var settings: Dictionary = _config.get("rest_sequence", {})
-	var seat := _read_vec2(settings.get("seat_position"), Vector2(440, 620))
-	var approach := seat + Vector2(-98, 0)
+	var approach := _character.position
+	var seat := approach + Vector2(float(settings.get("chair_reach_distance", 75.0)), 0)
 	var chair_start := seat
 	var chair_end := chair_start + Vector2(0, -14)
 	# Furniture transforms are set before revealing. Desk is never animated in
@@ -523,7 +522,8 @@ func _start_rest_sequence(source: String) -> bool:
 		_set_rest_stage("enter_gap")
 		_character.play_walk("right")
 	)
-	_action_tween.tween_property(_character, "position", seat, 1.05)
+	_action_tween.tween_property(chair, "position:x", approach.x, 1.05)
+	_action_tween.parallel().tween_property(desk, "position:x", approach.x, 1.05)
 	_action_tween.tween_callback(_rest_pose.bind("turn", "sit_turn"))
 	_action_tween.tween_interval(0.14)
 	_action_tween.tween_callback(_rest_pose.bind("align", "sit_align"))
@@ -576,9 +576,10 @@ func _start_seated_activity(activity: String, source: String) -> bool:
 			return false
 		_furniture.set_visible("desk", false, false)
 		_furniture.get_view("chair").set_direction("right")
+		_furniture.get_view("chair").z_index = _character.z_index - 1
 		# Align the side-view cushion under the hips, leaving its front edge visible.
 		_furniture.get_view("chair").position = _character.position + Vector2(-14, 32)
-		computer.set_direction("right")
+		computer.set_direction("left")
 		computer.position = _character.position + Vector2(120, 28)
 		computer.z_index = 2
 		computer.set_visible_immediate(true)

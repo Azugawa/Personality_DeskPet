@@ -192,10 +192,17 @@ func get_activity_controller() -> PetActivityController:
 
 
 func _on_context_menu_requested(screen_position: Vector2) -> void:
-	pet_menu.show_actions(activity_controller.get_menu_entries(), screen_position)
+	var entries := activity_controller.get_menu_entries()
+	pet_menu.show_actions(entries, screen_position)
 
 
 func _on_menu_action_selected(activity_id: String) -> void:
+	if activity_id == "check_update":
+		UpdateService.check()
+		return
+	if activity_id == "quit":
+		get_tree().quit()
+		return
 	if not activity_controller.request(activity_id):
 		push_warning("[PetWorld] Activity request failed: %s" % activity_id)
 

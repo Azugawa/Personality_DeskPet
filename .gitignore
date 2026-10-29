@@ -60,3 +60,5 @@ Thumbs.db
 /deskpet/assets/**/*.md
 /deskpet/assets/sprite_manifest.json
 /deskpet/assets/character/spirit/rig_metadata/
+
+!/deskpet/assets/ui/*.md

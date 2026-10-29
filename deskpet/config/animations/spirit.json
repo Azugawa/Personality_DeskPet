@@ -328,7 +328,11 @@
         256,
         384
       ],
-      "foreground_cutoff": 330
+      "foreground_cutoff": 330,
+      "offset": [
+        -16,
+        0
+      ]
     },
     "rest_loop": {
       "frames": [
@@ -342,7 +346,11 @@
         256,
         384
       ],
-      "foreground_cutoff": 330
+      "foreground_cutoff": 330,
+      "offset": [
+        -16,
+        0
+      ]
     },
     "computer_sit_right": {
       "frames": [
@@ -383,6 +391,29 @@
         384
       ],
       "foreground_cutoff": 330
+    },
+    "head_pat": {
+      "frames": [
+        "res://assets/character/spirit/headpat/00.png",
+        "res://assets/character/spirit/headpat/01.png",
+        "res://assets/character/spirit/headpat/02.png",
+        "res://assets/character/spirit/headpat/03.png",
+        "res://assets/character/spirit/headpat/04.png",
+        "res://assets/character/spirit/headpat/05.png",
+        "res://assets/character/spirit/headpat/06.png",
+        "res://assets/character/spirit/headpat/07.png",
+        "res://assets/character/spirit/headpat/08.png",
+        "res://assets/character/spirit/headpat/09.png",
+        "res://assets/character/spirit/headpat/10.png",
+        "res://assets/character/spirit/headpat/11.png"
+      ],
+      "fps": 8,
+      "loop": false,
+      "scale": 0.8708,
+      "canvas": [
+        512,
+        384
+      ]
     }
   },
   "direction_idle": {

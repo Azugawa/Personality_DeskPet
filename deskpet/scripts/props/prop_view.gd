@@ -96,7 +96,7 @@ func _setup_texture(config: Dictionary) -> bool:
 	var texture_path := str(config.get("texture", ""))
 	if texture_path.is_empty():
 		return _fail("Prop '%s' has type 'texture' but no texture path." % prop_id)
-	if not FileAccess.file_exists(texture_path):
+	if not ResourceLoader.exists(texture_path):
 		return _fail("Prop '%s' texture file is missing: %s" % [prop_id, texture_path])
 	var texture := load(texture_path) as Texture2D
 	if texture == null:

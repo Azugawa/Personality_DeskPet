@@ -8,7 +8,7 @@
     },
     {
       "id": "rest",
-      "label": "休息",
+      "label": "去趴趴",
       "kind": "rest_sequence",
       "required_furniture": [
         "chair",
@@ -25,17 +25,7 @@
       "seat_furniture": "chair",
       "required_animation": "sit_front",
       "reveal_seconds": 0.9,
-      "notes": "Walk to chair left, reveal furniture, pull chair in depth, enter gap, turn and sit."
-    },
-    {
-      "id": "lie",
-      "label": "趴桌休息",
-      "kind": "seated_activity",
-      "required_furniture": [
-        "chair",
-        "desk"
-      ],
-      "required_animation": "rest_loop",
+      "notes": "Walk to chair left, reveal furniture, pull chair in depth, enter gap, turn and sit.",
       "followup": "rest"
     },
     {

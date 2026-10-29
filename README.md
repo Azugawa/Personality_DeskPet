@@ -1,48 +1,20 @@
-# Personality DeskPet
+# 何爪爪
 
-个性化桌面宠物软件，采用 Godot 4 与 GDScript，目前为 Windows 桌面原型。
-目标是支持个性化角色和行为、安装包下载与安装、软件更新。
+Godot 4.7.2 桌面宠物，当前提供 Windows x64 安装包。
 
-## 当前功能
+- 透明置顶窗口、身体拖动、头部点击摸头。
+- 待机、趴桌、玩电脑，以及原地行走和倒放离场。
+- 自定义像素菜单、中文像素字体、系统托盘显示/隐藏。
+- 安装与卸载、GitHub Releases 更新检查和下载校验。
 
-- 透明、无边框、置顶的桌面宠物窗口。
-- 八方向站立和行走、正面待机动画。
-- 独立的桌子、椅子与电脑家具。
-- 手动移动、摸头交互、右键动作菜单和 JSON 配置。
+主工程位于 `deskpet/`，源素材备份位于 `asset_sources/`。
+用 Godot 打开 `deskpet/project.godot`；桌面模式启动参数为 `-- --desktop-mode`。
 
-完整坐下/起身动作、用户设置界面、安装包与软件更新机制尚待实现。
+打包：`deskpet/packaging/build.ps1`。需要 Godot 4.7.2 Windows 导出模板和 Inno Setup。
+详细步骤见 [打包说明](deskpet/packaging/README.md)。
 
-## 运行
+生成的 `build/installer/DeskPet-Setup-0.1.0.exe` 是完整独立安装包，可重命名后通过网盘、U盘或聊天工具直接分享。接收者不需要 GitHub、Godot 或 Python。
+更新源需要另行发布正式 GitHub Release；尚未发布时不影响本地运行。
 
-克隆仓库，用 Godot 打开 `deskpet/project.godot`，完成资源导入后按 **F5** 运行主场景。
-现有工程验证版本为 Godot 4.7.2，使用 GL Compatibility 渲染器，无需 Python。
-
-也可以在仓库根目录使用命令行：
-
-```powershell
-$env:GODOT_EXE = '你的Godot目录/Godot可执行文件.exe'
-& $env:GODOT_EXE --editor --path ./deskpet
-# 普通预览
-& $env:GODOT_EXE --path ./deskpet
-# 透明桌面模式
-& $env:GODOT_EXE --path ./deskpet -- --desktop-mode
-```
-
-WASD / 方向键移动；右键角色打开动作菜单；左键点击摸头；拖动移动窗口。
-
-## 仓库内容
-
-仅维护软件运行所需工程及最少的仓库说明：
-
-| 路径 | 内容 |
-|---|---|
-| `deskpet/project.godot` | Godot 工程入口 |
-| `deskpet/scripts/` | 运行代码 |
-| `deskpet/scenes/` | 场景与节点结构 |
-| `deskpet/config/` | 运行配置 |
-| `deskpet/assets/` | 运行素材及资源导入设置 |
-
-原始素材、素材编辑与生成工具、测试代码、开发截图和文档、缓存及备份不纳入版本控制。
-这些开发文件可保留在维护者本地；克隆仓库无需这些文件即可运行软件。
-
-维护者：Azugawa。后续安装包计划发布至 [GitHub Releases](https://github.com/Azugawa/Personality_DeskPet/releases)，目前尚无正式安装版本。
+提醒、模型对话、换装和游戏空间目前仅预留接口。
+字体及其许可证位于 `deskpet/assets/fonts/`。

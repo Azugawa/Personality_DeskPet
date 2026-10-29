@@ -1,14 +1,26 @@
 {
   "auto_enabled": false,
-  "idle_delay_seconds": [3.0, 6.0],
+  "idle_delay_seconds": [
+    3.0,
+    6.0
+  ],
   "manual_pause_seconds": 4.0,
   "look_chance": 0.35,
   "walk_chance": 0.65,
   "walk_speed": 76.0,
-  "walk_bounds": [110, 530, 580, 660],
-  "auto_walk_distance": [45, 120],
+  "walk_bounds": [
+    110,
+    530,
+    580,
+    660
+  ],
+  "auto_walk_distance": [
+    45,
+    120
+  ],
   "rest_sequence": {
-    "desk_forward_offset": 50.0
+    "desk_forward_offset": 50.0,
+    "chair_reach_distance": 75.0
   },
   "cooldowns_seconds": {
     "walk": 8.0,

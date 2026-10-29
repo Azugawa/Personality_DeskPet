@@ -15,6 +15,9 @@ var _state_machine: ActionStateMachine = null
 var _furniture: FurnitureManager = null
 var _character: Character = null
 var _activities: Array = []
+var current_activity: String = "idle"
+var transitioning: bool = false
+
 var _pending_id: String = ""
 var _pending_activity: Dictionary = {}
 
@@ -43,10 +46,12 @@ func setup(
 
 func get_menu_entries() -> Array:
 	var entries: Array = []
-	var busy := _state_machine != null and _state_machine.is_busy()
+	var busy := false # transient reactions can be interrupted by an activity
 	for activity_value in _activities:
 		var activity: Dictionary = activity_value
 		var activity_id := str(activity.get("id", ""))
+		if activity_id == current_activity:
+			continue
 		var label := str(activity.get("label", activity_id))
 		var required_furniture: Array = activity.get("required_furniture", [])
 		var missing_furniture := false
@@ -58,7 +63,7 @@ func get_menu_entries() -> Array:
 		var missing_animation := not required_animation.is_empty() and not _character.has_animation(required_animation)
 		if missing_animation:
 			label += "（坐姿待补）"
-		var enabled := activity_id == "idle" or (not busy and not missing_furniture)
+		var enabled := not transitioning and not busy and not missing_furniture
 		entries.append({
 			"id": activity_id,
 			"label": label,
@@ -74,54 +79,41 @@ func request(activity_id: String) -> bool:
 	if activity.is_empty():
 		push_warning("[PetActivityController] Unknown activity '%s'." % activity_id)
 		return false
-	if activity_id == "idle":
-		return _state_machine.request_idle(ActionStateMachine.MANUAL)
-	if _state_machine == null or _state_machine.is_busy():
-		push_warning("[PetActivityController] Activity '%s' rejected while the character is busy." % activity_id)
+	if transitioning:
 		return false
-	if str(activity.get("kind", "")) in ["rest_sequence", "seated_activity"]:
-		if _state_machine.current_state == "seated":
-			var followup := str(activity.get("followup", ""))
-			if not followup.is_empty():
-				_pending_id = activity_id
-				_pending_activity = activity
-				if _state_machine.request_command({"action": followup}, ActionStateMachine.MANUAL):
-					activity_started.emit(activity_id)
-					return true
-				_pending_id = ""
-				_pending_activity = {}
-				return false
-		if not _state_machine.request_sit(ActionStateMachine.MANUAL):
-			return false
+	transitioning = true
+	_run_transition(activity_id, activity)
+	return true
+
+
+func _run_transition(activity_id: String, activity: Dictionary) -> void:
+	activity_started.emit(activity_id)
+	if current_activity != "idle":
+		await _reverse_entry()
+	_state_machine.request_idle(ActionStateMachine.MANUAL)
+	for id in ["desk", "chair", "computer"]:
+		_furniture.set_visible(id, false, false)
+	_character.play_walk("right")
+	await get_tree().create_timer(0.9).timeout
+	current_activity = activity_id
+	if activity_id == "idle":
+		_character.play_idle("front")
+		transitioning = false
+		activity_finished.emit(activity_id)
+		return
+	if activity_id == "computer":
+		_state_machine._set_state("seated")
+		_furniture.get_view("chair").set_visible_immediate(true)
 		_pending_id = activity_id
 		_pending_activity = activity
-		activity_started.emit(activity_id)
-		return true
-
-	var required_furniture: Array = activity.get("required_furniture", [])
-	for furniture_id_value in required_furniture:
-		if not _furniture.has_furniture(str(furniture_id_value)):
-			push_warning("[PetActivityController] Activity '%s' missing furniture '%s'." % [activity_id, str(furniture_id_value)])
-			return false
-
-	var reveal_seconds := maxf(0.0, float(activity.get("reveal_seconds", 0.9)))
-	for hide_value in activity.get("hide_furniture", []):
-		_furniture.set_visible(str(hide_value), false, true, 0.3)
-	for show_value in activity.get("show_furniture", []):
-		_furniture.set_visible(str(show_value), true, true, reveal_seconds)
-
-	var approach_furniture := str(activity.get("approach_furniture", ""))
-	var approach := _furniture.get_approach_position(approach_furniture)
-	if approach == Vector2.ZERO:
-		approach = _character.position + Vector2(80, 0)
+		_state_machine.request_command({"action": "computer"}, ActionStateMachine.MANUAL)
+		return
 	_pending_id = activity_id
 	_pending_activity = activity
-	activity_started.emit(activity_id)
-	if not _state_machine.request_walk_to(approach, ActionStateMachine.MANUAL):
+	if not _state_machine.request_sit(ActionStateMachine.MANUAL):
+		current_activity = "idle"
 		_pending_id = ""
-		_pending_activity = {}
-		return false
-	return true
+		transitioning = false
 
 
 func get_pending_id() -> String:
@@ -148,12 +140,14 @@ func _on_action_finished(action_name: String, _source: String) -> void:
 		var finished_id := _pending_id
 		_pending_id = ""
 		_pending_activity = {}
+		transitioning = false
 		activity_finished.emit(finished_id)
 		return
 	if not _pending_id.is_empty() and action_name in ["rest", "computer"]:
 		var finished_id := _pending_id
 		_pending_id = ""
 		_pending_activity = {}
+		transitioning = false
 		activity_finished.emit(finished_id)
 		return
 	if _pending_id.is_empty() or action_name != "walk":
@@ -177,6 +171,8 @@ func _on_action_finished(action_name: String, _source: String) -> void:
 func _on_action_cancelled(action_name: String, _reason: String) -> void:
 	if _pending_id.is_empty() or action_name not in ["walk", "sit", "rest", "computer"]:
 		return
+	transitioning = false
+	current_activity = "idle"
 	var activity_id := _pending_id
 	_pending_id = ""
 	_pending_activity = {}
@@ -189,3 +185,38 @@ func _find_activity(activity_id: String) -> Dictionary:
 		if str(activity.get("id", "")) == activity_id:
 			return activity
 	return {}
+
+
+func _reverse_clip(clip: String, seconds: float) -> void:
+	_character.play_animation(clip)
+	_character.animated_body.play(clip, -1.0, true)
+	await get_tree().create_timer(seconds).timeout
+
+
+func _reverse_entry() -> void:
+	if current_activity == "rest":
+		await _reverse_clip("rest_enter", 0.5)
+	else:
+		await _reverse_clip("computer_reach", 0.25)
+		await _reverse_clip("computer_sit_right", 0.2)
+		return
+	var chair := _furniture.get_view("chair")
+	chair.set_direction("front")
+	chair.position = _character.position + Vector2(0, -14)
+	await _reverse_clip("sit_lower", 0.22)
+	await _reverse_clip("sit_align", 0.18)
+	await _reverse_clip("sit_turn", 0.14)
+	_character.play_walk("left")
+	var seat := _character.position
+	var tween := create_tween()
+	var distance := float(_state_machine._config.get("rest_sequence", {}).get("chair_reach_distance", 75.0))
+	tween.tween_property(chair, "position:x", chair.position.x + distance, 1.05)
+	var desk := _furniture.get_view("desk")
+	tween.parallel().tween_property(desk, "position:x", desk.position.x + distance, 1.05)
+	await tween.finished
+	_character.play_animation("chair_pull")
+	tween = create_tween()
+	tween.tween_property(chair, "position:y", seat.y, 0.42)
+	await tween.finished
+	await _reverse_clip("chair_grip", 0.28)
+	await _reverse_clip("sit_arrive", 0.18)

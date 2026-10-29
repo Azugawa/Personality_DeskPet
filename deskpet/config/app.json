@@ -1,8 +1,8 @@
 {
-  "app_name": "DeskPet",
+  "app_name": "何爪爪",
   "window": {
-    "width": 640,
-    "height": 720,
+    "width": 624,
+    "height": 468,
     "resizable": false
   },
   "preview": {
