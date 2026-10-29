@@ -1,4 +1,4 @@
-﻿param([string]$Version = "0.2.9")
+param([string]$Version = "0.3.0")
 $ErrorActionPreference = 'Stop'
 $env:GCM_INTERACTIVE = 'never'
 $credentialResult = "protocol=https`nhost=github.com`n`n" | git credential fill
@@ -15,7 +15,17 @@ $body = @{
  target_commitish = (git rev-parse HEAD)
  name = "何爪爪 v$Version"
  draft = $true
- body = "优化启动速度：动画切帧与去背景改为构建时处理。整理动画与 UI 素材目录。新增提起、抛掷反弹、摔倒和起身，普通松手可自由放置。缩小透明窗口，校准动画角色尺寸。支持兼容版本分块增量更新，无需反复运行安装向导。旧版本首次升级仍需安装新版更新器。"
+ body = @"
+何爪爪 v$Version
+
+- 新增定时提醒：指定日期时间或倒计时，支持启动补提醒、稍后提醒。
+- 新增和风天气：1km 格点、系统/手动定位、今天与明天对比建议，并按和风要求署名。
+- 新增工作模式：Word/WPS/PPT/Excel/PDF 白名单自动开关，40 分钟工作 / 5 分钟休息，全屏课堂延后提醒。
+- 新增系统状态哨兵：CPU 占用、前台程序、空闲时间、C 盘空间和 Top 进程。
+- 新增 C 盘非必要文件分析：Windows 搜索索引优先，索引不可用时定向扫描；只读，不自动删除或移动。
+- 新增本地设置存储与开机自启。
+- 0.2.9 及更早版本首次升级建议使用完整安装包；安装器默认勾选开机自启，也可在设置里修改。
+"@
 } | ConvertTo-Json
 if ($existing) { $release = $existing } else { $release = Invoke-RestMethod -Method Post -Uri $api -Headers $headers -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($body)) }
 $manifest = Get-Content 'E:/DeskPet/build/installer/update.json' -Raw | ConvertFrom-Json
