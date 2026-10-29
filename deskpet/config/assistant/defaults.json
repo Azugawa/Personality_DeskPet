@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "general": {
+    "autostart": true,
+    "start_hidden": false
+  },
+  "weather": {
+    "provider": "qweather",
+    "api_host": "",
+    "auth": "key",
+    "language": "zh",
+    "timeout_seconds": 8,
+    "cache_seconds": 600,
+    "min_query_interval_seconds": 60,
+    "location_mode": "system",
+    "manual_city": {
+      "name": "",
+      "lat": 0.0,
+      "lon": 0.0
+    }
+  },
+  "work_mode": {
+    "apps": [
+      "WINWORD.EXE",
+      "EXCEL.EXE",
+      "POWERPNT.EXE",
+      "ONENOTE.EXE",
+      "WPS.EXE",
+      "et.exe",
+      "wpp.exe",
+      "wpspdf.exe",
+      "Acrobat.exe",
+      "AcrobatDC.exe",
+      "FoxitReader.exe",
+      "FoxitPDFReader.exe"
+    ],
+    "auto_enable_seconds": 30,
+    "auto_disable_seconds": 120,
+    "manual_auto_disable_seconds": 600,
+    "manual_off_suppress_seconds": 1800,
+    "idle_pause_seconds": 120,
+    "work_minutes": 40,
+    "break_minutes": 5,
+    "fullscreen_defer": true
+  },
+  "reminders": {
+    "missed_grace_hours": 24,
+    "max_items": 200,
+    "retention_days": 7,
+    "max_text_length": 200
+  },
+  "sentinel": {
+    "enabled": true,
+    "sample_seconds": 2,
+    "state_stale_seconds": 6,
+    "usage_enabled": true,
+    "usage_retention_days": 30,
+    "capture_titles": false,
+    "exclude_processes": [
+      "KeePass.exe",
+      "1Password.exe",
+      "Bitwarden.exe"
+    ]
+  },
+  "drive_analysis": {
+    "enabled": true,
+    "large_file_mb": 100,
+    "document_mb": 50,
+    "max_scan_seconds": 60,
+    "max_files": 200000,
+    "max_candidates": 200,
+    "auto_index_days": 7,
+    "roots": [
+      "{USER}\\Downloads",
+      "{USER}\\Desktop",
+      "{USER}\\Documents",
+      "{USER}\\Videos",
+      "{USER}\\Music",
+      "{USER}\\Pictures",
+      "{USER}\\AppData\\Local\\Temp"
+    ],
+    "exclude_dirs": [
+      "node_modules",
+      ".git",
+      ".svn",
+      "__pycache__",
+      "AppData\\Local\\Packages",
+      "AppData\\Local\\Microsoft",
+      "AppData\\Local\\Programs",
+      "OneDrive"
+    ],
+    "exclude_extensions": [
+      ".tmp",
+      ".log",
+      ".dll",
+      ".sys",
+      ".pdb"
+    ],
+    "categories": {
+      "video": [".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".ts", ".m4v", ".webm"],
+      "audio": [".flac", ".wav", ".ape", ".mp3", ".m4a", ".aac", ".ogg"],
+      "archive": [".zip", ".7z", ".rar", ".iso", ".tar", ".gz", ".bz2", ".xz"],
+      "installer": [".exe", ".msi", ".msix", ".appx"],
+      "document": [".pdf", ".pptx", ".docx", ".xlsx", ".epub"],
+      "disk_image": [".vhd", ".vhdx", ".img", ".vmdk"]
+    }
+  }
+}

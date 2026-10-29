@@ -1,4 +1,4 @@
-﻿#ifndef AppVersion
+#ifndef AppVersion
 #define AppVersion "0.2.9"
 #endif
 [Setup]
@@ -17,6 +17,8 @@ SolidCompression=yes
 CloseApplications=yes
 UninstallDisplayIcon={app}\DeskPet.exe
 ArchitecturesAllowed=x64compatible
+[Tasks]
+Name: "autostart"; Description: "开机自动启动何爪爪（推荐，定时提醒更可靠）"; GroupDescription: "启动选项："; Flags: checkedonce
 [Files]
 Source: "..\..\build\windows\DeskPet.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\build\windows\DeskPet.pck"; DestDir: "{app}"; Flags: ignoreversion
@@ -26,6 +28,9 @@ Name: "{group}\何爪爪"; Filename: "{app}\DeskPet.exe"; Parameters: "-- --desk
 Name: "{autodesktop}\何爪爪"; Filename: "{app}\DeskPet.exe"; Parameters: "-- --desktop-mode"
 [Run]
 Filename: "{app}\DeskPet.exe"; Parameters: "-- --desktop-mode"; Description: "启动何爪爪"; Flags: nowait postinstall skipifsilent
+
+[Registry]
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "Hezhuazhua"; ValueData: """{app}\DeskPet.exe"" -- --desktop-mode"; Flags: uninsdeletevalue; Tasks: autostart
 
 [InstallDelete]
 Type: files; Name: "{autodesktop}\Personality DeskPet.lnk"

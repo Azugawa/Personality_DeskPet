@@ -8,6 +8,10 @@ if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Version must be major.minor.p
 $repo = Split-Path (Split-Path $PSScriptRoot)
 $project = Join-Path $repo 'deskpet'
 New-Item -ItemType Directory -Force (Join-Path $repo 'build/windows') | Out-Null
+$binDir = Join-Path $project 'bin'
+New-Item -ItemType Directory -Force $binDir | Out-Null
+& 'C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe' /nologo /target:winexe "/out:$binDir\DeskPetSentinel.exe" /reference:System.Web.Extensions.dll (Join-Path $PSScriptRoot 'SentinelHelper.cs') (Join-Path $PSScriptRoot 'DriveScan.cs') (Join-Path $PSScriptRoot 'Autostart.cs')
+if ($LASTEXITCODE -ne 0) { throw 'Sentinel helper compilation failed' }
 & $Godot --headless --path $project --editor --import --quit
 if ($LASTEXITCODE -ne 0) { throw 'Godot import failed' }
 & $Godot --headless --path $project --export-release 'Windows Desktop' (Join-Path $repo 'build/windows/DeskPet.exe')

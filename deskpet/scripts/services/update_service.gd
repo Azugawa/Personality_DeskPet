@@ -6,6 +6,12 @@ var update_config: Dictionary = {}
 var busy := false
 var offer: Dictionary = {}
 var dialog: AcceptDialog
+# True while a feed check (not a download) is running; the automatic startup
+# check can still be in flight when the user asks for a manual check.
+var checking := false
+# Set when 检查更新 is clicked during an automatic check. The running check then
+# reports its own result instead of leaving a "please wait" dialog on screen.
+var _manual_queued := false
 
 func _ready() -> void:
 	update_config = ConfigLoader.load_json("res://config/updates.json")
@@ -36,10 +42,18 @@ func _fetch_once(url: String, file: String = "") -> Array:
 
 func check(manual: bool = true) -> void:
 	if busy:
-		if manual: _message("正在检查或下载更新，请稍候……")
+		if not manual: return
+		if checking:
+			# The silent check started at launch is still running. Ask for its
+			# result to be shown when it finishes instead of a dead-end message.
+			_manual_queued = true
+			_message("正在检查更新，请稍候……")
+		else:
+			_message("正在检查或下载更新，请稍候……")
 		return
 	if manual: _message("正在检查更新，请稍候……")
 	busy = true
+	checking = true
 	var result: Array = []
 	for feed in update_config.get("feeds", [FEED]):
 		if not str(feed).begins_with("https://"): continue
@@ -47,20 +61,23 @@ func check(manual: bool = true) -> void:
 		if not result.is_empty() and result[0] == HTTPRequest.RESULT_SUCCESS and result[1] == 200:
 			break
 	busy = false
+	checking = false
+	var report := manual or _manual_queued
+	_manual_queued = false
 	if result.is_empty() or result[0] != HTTPRequest.RESULT_SUCCESS or result[1] != 200:
-		if manual:
+		if report:
 			_message("暂时无法检查更新，请稍后重试。")
 		return
 	var parsed: Variant = JSON.parse_string((result[3] as PackedByteArray).get_string_from_utf8().trim_prefix("\ufeff"))
 	if not parsed is Dictionary:
-		if manual: _message("更新信息格式无效。")
+		if report: _message("更新信息格式无效。")
 		return
 	offer = parsed
 	var version := str(offer.get("version", ""))
 	var regex := RegEx.new()
 	regex.compile("^[0-9]+\\.[0-9]+\\.[0-9]+$")
 	if regex.search(version) == null or not _allowed_download(str(offer.get("url", ""))):
-		if manual: _message("更新信息校验失败。")
+		if report: _message("更新信息校验失败。")
 		return
 	var newer := false
 	var a := version.split(".")
@@ -70,7 +87,7 @@ func check(manual: bool = true) -> void:
 			newer = int(a[i]) > int(b[i])
 			break
 	if not newer:
-		if manual: _message("当前为最新版本 " + VERSION)
+		if report: _message("当前为最新版本 " + VERSION)
 		return
 	dialog.hide()
 	var prompt := ConfirmationDialog.new()

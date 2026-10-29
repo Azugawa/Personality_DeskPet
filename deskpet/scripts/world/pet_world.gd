@@ -193,10 +193,14 @@ func get_activity_controller() -> PetActivityController:
 
 func _on_context_menu_requested(screen_position: Vector2) -> void:
 	var entries := activity_controller.get_menu_entries()
+	entries.append_array(FeatureServices.get_menu_entries())
 	pet_menu.show_actions(entries, screen_position)
 
 
 func _on_menu_action_selected(activity_id: String) -> void:
+	if activity_id.begins_with("assistant_"):
+		FeatureServices.handle_menu_action(activity_id)
+		return
 	if activity_id == "check_update":
 		UpdateService.check()
 		return
