@@ -1,7 +1,7 @@
 param(
  [string]$Godot = 'E:\Godot.exe\Godot_v4.7.2-stable_win64_console.exe',
  [string]$Iscc = 'E:\DeskPet\build\tooling\InnoSetup\ISCC.exe',
- [string]$Version = '0.2.1'
+ [string]$Version = '0.2.3'
 )
 $ErrorActionPreference = 'Stop'
 if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Version must be major.minor.patch' }

@@ -1,5 +1,5 @@
 extends Node
-const VERSION := "0.2.1"
+const VERSION := "0.2.3"
 const FEED := "https://github.com/Azugawa/Personality_DeskPet/releases/latest/download/update.json"
 const PREFIX := "https://github.com/Azugawa/Personality_DeskPet/releases/download/"
 var update_config: Dictionary = {}
@@ -12,12 +12,14 @@ func _ready() -> void:
 	dialog = AcceptDialog.new()
 	dialog.title = "软件更新"
 	add_child(dialog)
+	_skin_dialog(dialog)
 	if not OS.has_feature("editor"):
 		check(false)
 
 func _message(message: String) -> void:
 	dialog.dialog_text = message
-	dialog.popup_centered(Vector2i(400, 160))
+	if not dialog.visible:
+		dialog.popup_centered(Vector2i(400, 160))
 
 func _fetch_once(url: String, file: String = "") -> Array:
 	var http := HTTPRequest.new()
@@ -34,7 +36,9 @@ func _fetch_once(url: String, file: String = "") -> Array:
 
 func check(manual: bool = true) -> void:
 	if busy:
+		if manual: _message("正在检查或下载更新，请稍候……")
 		return
+	if manual: _message("正在检查更新，请稍候……")
 	busy = true
 	var result: Array = []
 	for feed in update_config.get("feeds", [FEED]):
@@ -66,12 +70,14 @@ func check(manual: bool = true) -> void:
 			newer = int(a[i]) > int(b[i])
 			break
 	if not newer:
-		if manual: _message("当前已是最新版本 " + VERSION)
+		if manual: _message("当前为最新版本 " + VERSION)
 		return
+	dialog.hide()
 	var prompt := ConfirmationDialog.new()
 	prompt.title = "发现新版本 " + version
-	prompt.dialog_text = "下载更新并启动安装程序？安装程序启动后桌宠将退出。"
+	prompt.dialog_text = "有新版本需要下载：" + version + "\n确定下载并安装？安装程序启动后桌宠将退出。"
 	add_child(prompt)
+	_skin_dialog(prompt)
 	prompt.confirmed.connect(func():
 		prompt.queue_free()
 		install_update()
@@ -85,6 +91,7 @@ func install_update() -> void:
 		_message("当前自动安装仅支持 Windows。")
 		return
 	busy = true
+	_message("正在下载更新，请稍候……")
 	var path := "user://DeskPet-update.exe"
 	var result := await _fetch(str(offer.url), path, str(offer.get("sha256", "")).to_lower())
 	busy = false
@@ -139,3 +146,67 @@ func _fetch(url: String, file: String = "", expected_hash: String = "") -> Array
 	if not file.is_empty() and FileAccess.file_exists(file):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(file))
 	return []
+
+func _skin_dialog(window: AcceptDialog) -> void:
+	window.borderless = true
+	window.transparent = true
+	window.transparent_bg = true
+	window.get_ok_button().text = "确定"
+	if window is ConfirmationDialog:
+		window.get_cancel_button().text = "取消"
+	var font: FontFile = load("res://assets/fonts/pixel.ttf")
+	font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
+	window.add_theme_font_override("font", font)
+	window.add_theme_font_size_override("font_size", 18)
+	window.add_theme_color_override("font_color", Color("173763"))
+	var panel := _sheet_style(Rect2(1250,827,270,153), 56)
+	panel.content_margin_left = 34
+	panel.content_margin_right = 34
+	panel.content_margin_top = 52
+	panel.content_margin_bottom = 35
+	window.add_theme_stylebox_override("panel",panel)
+	var drag := preload("res://scripts/ui/dialog_drag.gd").new()
+	drag.name = "DialogDrag"
+	window.add_child(drag)
+	window.get_label().add_theme_font_override("font",font)
+	window.get_label().add_theme_font_size_override("font_size",18)
+	window.get_label().add_theme_color_override("font_color",Color("173763"))
+	for button in [window.get_ok_button(), window.get_cancel_button() if window is ConfirmationDialog else null]:
+		if button == null: continue
+		# Keep the authored lettering at the same horizontal/vertical scale.
+		var button_width := 255.0 * 40.0 / 62.0 if button == window.get_ok_button() else 238.0 * 40.0 / 62.0
+		button.custom_minimum_size = Vector2(button_width,40)
+		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+		button.mouse_default_cursor_shape = Control.CURSOR_CROSS
+		button.add_theme_font_override("font",font)
+		button.add_theme_font_size_override("font_size",18)
+		button.add_theme_color_override("font_color",Color.WHITE)
+		# Full authored buttons, including both end caps and original pixel lettering.
+		var region := Rect2(344,672,255,62) if button == window.get_ok_button() else Rect2(631,672,238,62)
+		var normal := _sheet_style(region,0)
+		normal.content_margin_left = button_width / 2.0
+		normal.content_margin_right = button_width / 2.0
+		normal.content_margin_top = 20
+		normal.content_margin_bottom = 20
+		button.text = ""
+		button.tooltip_text = "确定" if button == window.get_ok_button() else "取消"
+		button.add_theme_stylebox_override("normal",normal)
+		var hover := normal.duplicate()
+		hover.modulate_color = Color(0.8,0.9,1)
+		button.add_theme_stylebox_override("hover",hover)
+		button.add_theme_stylebox_override("pressed",hover)
+
+func _sheet_style(region: Rect2, margin: int) -> StyleBoxTexture:
+	# Give nine-slice its own image so UV stretching cannot sample adjacent atlas art.
+	var sheet: Texture2D = load("res://assets/ui/dialog_sheet.png")
+	var cropped := sheet.get_image().get_region(Rect2i(region))
+	if region == Rect2(1250,827,270,153):
+		# Trim only the unrelated caption above the panel; preserve the entire
+		# original star and border together, without overlays or rebuilt corners.
+		cropped.fill_rect(Rect2i(0,0,190,15),Color.TRANSPARENT)
+	var texture := ImageTexture.create_from_image(cropped)
+	var style := StyleBoxTexture.new()
+	style.texture = texture
+	for side in [SIDE_LEFT,SIDE_TOP,SIDE_RIGHT,SIDE_BOTTOM]:
+		style.set_texture_margin(side,margin)
+	return style
