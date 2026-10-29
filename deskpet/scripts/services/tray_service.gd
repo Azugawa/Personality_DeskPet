@@ -5,7 +5,7 @@ func _ready() -> void:
 	if DisplayServer.get_name() == "headless": return
 	indicator = StatusIndicator.new()
 	indicator.name = "TrayIcon"
-	indicator.icon = load("res://assets/ui/app_icon_256.png")
+	indicator.icon = load("res://assets/ui/icons/app_icon_256.png")
 	indicator.tooltip = "何爪爪"
 	menu = PetMenu.new()
 	add_child(menu)

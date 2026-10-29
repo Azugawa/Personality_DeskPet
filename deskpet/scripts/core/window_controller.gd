@@ -7,6 +7,8 @@ extends RefCounted
 ## (after "--"), so F5 in the editor remains easy to debug.
 
 static func is_desktop_mode_requested() -> bool:
+	if not OS.has_feature("editor"):
+		return true
 	for arg in OS.get_cmdline_args():
 		if arg == "--desktop-mode":
 			return true

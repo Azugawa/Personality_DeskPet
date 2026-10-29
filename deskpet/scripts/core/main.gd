@@ -36,6 +36,8 @@ func _ready() -> void:
 	if not pet_world.setup():
 		push_error("[Main] PetWorld failed to start: %s" % pet_world.last_error)
 
+	if desktop_mode:
+		add_child(preload("res://scripts/core/compact_window.gd").new())
 	var overlay_enabled := bool(_dictionary(app_config.get("debug", {})).get("overlay", true))
 	if overlay_enabled and not desktop_mode:
 		debug_overlay = DEBUG_OVERLAY_SCENE.instantiate()

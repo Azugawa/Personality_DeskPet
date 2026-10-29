@@ -1,10 +1,10 @@
 ﻿#ifndef AppVersion
-#define AppVersion "0.2.3"
+#define AppVersion "0.2.9"
 #endif
 [Setup]
 AppId={{ED7C37EC-A108-4733-89C8-7DF693DD8616}
 AppName=何爪爪
-SetupIconFile=..\assets\ui\app.ico
+SetupIconFile=..\assets\ui\icons\app.ico
 AppVersion={#AppVersion}
 AppPublisher=Azugawa
 DefaultDirName={localappdata}\Programs\PersonalityDeskPet
@@ -20,6 +20,7 @@ ArchitecturesAllowed=x64compatible
 [Files]
 Source: "..\..\build\windows\DeskPet.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\build\windows\DeskPet.pck"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\build\windows\DeskPetUpdater.exe"; DestDir: "{app}"; Flags: ignoreversion
 [Icons]
 Name: "{group}\何爪爪"; Filename: "{app}\DeskPet.exe"; Parameters: "-- --desktop-mode"
 Name: "{autodesktop}\何爪爪"; Filename: "{app}\DeskPet.exe"; Parameters: "-- --desktop-mode"

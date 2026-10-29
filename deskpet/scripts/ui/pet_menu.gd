@@ -25,7 +25,7 @@ func _ready() -> void:
 
 func _piece(region: Rect2, rect: Rect2) -> void:
 	var atlas := AtlasTexture.new()
-	atlas.atlas = load("res://assets/ui/menu_source.png")
+	atlas.atlas = load("res://assets/ui/panels/menu_source.png")
 	atlas.region = region
 	var image := TextureRect.new()
 	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE

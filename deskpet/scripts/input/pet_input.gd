@@ -16,6 +16,7 @@ const MOVE_ACTIONS := {
 }
 
 var _cursor_images: Dictionary = {}
+var physics: Node
 
 var activity_controller: PetActivityController
 
@@ -45,9 +46,12 @@ func setup(state_machine: ActionStateMachine, character: Character, brain: Behav
 		return false
 	activity_controller = get_parent().get_node_or_null("ActivityController")
 	Input.set_custom_mouse_cursor(null, Input.CURSOR_ARROW)
-	Input.set_custom_mouse_cursor(load("res://assets/ui/default_cursor.png"), Input.CURSOR_CROSS, Vector2(2, 12))
-	Input.set_custom_mouse_cursor(load("res://assets/ui/pat.png"), Input.CURSOR_POINTING_HAND, Vector2(12, 12))
-	Input.set_custom_mouse_cursor(load("res://assets/ui/click.png"), Input.CURSOR_HELP, Vector2(12, 12))
+	Input.set_custom_mouse_cursor(load("res://assets/ui/cursors/default_cursor.png"), Input.CURSOR_CROSS, Vector2(2, 12))
+	Input.set_custom_mouse_cursor(load("res://assets/ui/cursors/pat.png"), Input.CURSOR_POINTING_HAND, Vector2(12, 12))
+	Input.set_custom_mouse_cursor(load("res://assets/ui/cursors/click.png"), Input.CURSOR_HELP, Vector2(12, 12))
+	physics = preload("res://scripts/input/pet_physics.gd").new()
+	add_child(physics)
+	physics.setup(self)
 	_ensure_movement_actions()
 	return true
 
@@ -55,14 +59,22 @@ func setup(state_machine: ActionStateMachine, character: Character, brain: Behav
 func _process(_delta: float) -> void:
 	if _pressed and not _head_pressed and _press_on_character:
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+			if physics.mode != "held": physics.begin()
 			get_window().position = _window_anchor + DisplayServer.mouse_get_position() - _screen_anchor
 		else:
+			physics.release()
 			_pressed = false
+	if get_window().transparent and _character != null:
+		var hit := _on_character_pixel()
+		if physics.sprite.visible:
+			hit = physics.hit_test(_pointer_position())
+		get_window().mouse_passthrough = not _character.is_visible_in_tree() or (not _pressed and not hit)
 	if _character != null:
 		var hover := _is_head(_pointer_position()) and activity_controller != null and activity_controller.current_activity == "idle" and not activity_controller.transitioning and _state_machine.current_state == "idle"
 		Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND if hover and _on_character_pixel() else (Input.CURSOR_CROSS if _on_character_pixel() else Input.CURSOR_ARROW))
 	if _state_machine == null:
 		return
+	if physics != null and physics.mode != "idle": return
 	if activity_controller != null and (activity_controller.transitioning or activity_controller.current_activity != "idle"):
 		return
 	var direction := Input.get_vector("pet_move_left", "pet_move_right", "pet_move_up", "pet_move_down")
@@ -79,7 +91,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_handle_key(event as InputEventKey)
 		return
 	if event is InputEventMouseButton:
-		var mouse_button := event as InputEventMouseButton
+		var mouse_button := event.duplicate() as InputEventMouseButton
+		mouse_button.position = get_viewport().canvas_transform.affine_inverse() * mouse_button.position
 		if mouse_button.button_index == MOUSE_BUTTON_LEFT:
 			_handle_left_button(mouse_button)
 			return
@@ -93,6 +106,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _handle_key(event: InputEventKey) -> void:
 	if _state_machine == null:
 		return
+	if physics != null and physics.mode != "idle": return
 	if activity_controller != null and (activity_controller.transitioning or activity_controller.current_activity != "idle"):
 		return
 	match event.physical_keycode:
@@ -133,15 +147,16 @@ func _is_head(point: Vector2) -> bool:
 
 func _handle_left_button(event: InputEventMouseButton) -> void:
 	if not event.pressed:
+		physics.release()
 		_pressed = false
 		_head_pressed = false
 		return
-	_press_on_character = _character != null and _character.get_screen_bounds().has_point(event.position)
+	_press_on_character = _character != null and (_on_character_pixel() if not physics.sprite.visible else physics.hit_test(event.position))
 	if not _press_on_character: return
 	_pressed = true
 	_screen_anchor = DisplayServer.mouse_get_position()
 	_window_anchor = get_window().position
-	_head_pressed = _is_head(event.position)
+	_head_pressed = physics.mode == "idle" and activity_controller.current_activity == "idle" and _is_head(event.position)
 	if _head_pressed and (activity_controller == null or (not activity_controller.transitioning and activity_controller.current_activity == "idle")):
 		_state_machine.request_head_pat(ActionStateMachine.MANUAL)
 	get_viewport().set_input_as_handled()
@@ -164,13 +179,14 @@ func _exit_tree() -> void:
 	Input.set_custom_mouse_cursor(null, Input.CURSOR_ARROW)
 	Input.set_custom_mouse_cursor(null, Input.CURSOR_POINTING_HAND)
 	Input.set_custom_mouse_cursor(null, Input.CURSOR_HELP)
+	Input.set_custom_mouse_cursor(null, Input.CURSOR_CROSS)
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 
 func _on_character_pixel() -> bool:
 	var sprite := _character.animated_body
 	if sprite.sprite_frames == null: return false
 	var texture := sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
-	var point := sprite.get_global_transform_with_canvas().affine_inverse() * _pointer_position() - sprite.offset
+	var point := sprite.get_global_transform().affine_inverse() * _pointer_position() - sprite.offset
 	if not Rect2(Vector2.ZERO, texture.get_size()).has_point(point): return false
 	if not _cursor_images.has(texture):
 		_cursor_images[texture] = texture.get_image()
@@ -179,4 +195,4 @@ func _on_character_pixel() -> bool:
 func _pointer_position() -> Vector2:
 	# Screen coordinates keep updating when transparent pixels receive no motion events.
 	var local := Vector2(DisplayServer.mouse_get_position() - get_window().position)
-	return get_viewport().get_final_transform().affine_inverse() * local
+	return get_viewport().canvas_transform.affine_inverse() * get_viewport().get_final_transform().affine_inverse() * local

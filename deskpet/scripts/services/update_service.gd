@@ -1,5 +1,5 @@
 extends Node
-const VERSION := "0.2.3"
+const VERSION := "0.2.9"
 const FEED := "https://github.com/Azugawa/Personality_DeskPet/releases/latest/download/update.json"
 const PREFIX := "https://github.com/Azugawa/Personality_DeskPet/releases/download/"
 var update_config: Dictionary = {}
@@ -89,6 +89,9 @@ func install_update() -> void:
 	if busy: return
 	if OS.get_name() != "Windows":
 		_message("当前自动安装仅支持 Windows。")
+		return
+	if offer.has("resource_update") and FileAccess.file_exists(OS.get_executable_path().get_base_dir().path_join("DeskPetUpdater.exe")):
+		await _install_chunks()
 		return
 	busy = true
 	_message("正在下载更新，请稍候……")
@@ -198,7 +201,7 @@ func _skin_dialog(window: AcceptDialog) -> void:
 
 func _sheet_style(region: Rect2, margin: int) -> StyleBoxTexture:
 	# Give nine-slice its own image so UV stretching cannot sample adjacent atlas art.
-	var sheet: Texture2D = load("res://assets/ui/dialog_sheet.png")
+	var sheet: Texture2D = load("res://assets/ui/panels/dialog_sheet.png")
 	var cropped := sheet.get_image().get_region(Rect2i(region))
 	if region == Rect2(1250,827,270,153):
 		# Trim only the unrelated caption above the panel; preserve the entire
@@ -210,3 +213,52 @@ func _sheet_style(region: Rect2, margin: int) -> StyleBoxTexture:
 	for side in [SIDE_LEFT,SIDE_TOP,SIDE_RIGHT,SIDE_BOTTOM]:
 		style.set_texture_margin(side,margin)
 	return style
+
+func _install_chunks() -> void:
+	var plan: Dictionary = offer.resource_update
+	if plan.get("format") != 1 or plan.get("engine") != "4.7.2":
+		_message("此版本需要更新运行引擎，请下载安装包。")
+		return
+	busy = true
+	var old := FileAccess.open(OS.get_executable_path().get_base_dir().path_join("DeskPet.pck"),FileAccess.READ)
+	var staged := FileAccess.open("user://resource-update.pck",FileAccess.WRITE)
+	if old == null or staged == null:
+		busy = false
+		_message("无法读取或写入更新文件。")
+		return
+	var hashes: Dictionary = {}
+	while old.get_position()<old.get_length():
+		var offset := old.get_position()
+		var data := old.get_buffer(1048576)
+		var hash := HashingContext.new()
+		hash.start(HashingContext.HASH_SHA256)
+		hash.update(data)
+		hashes[hash.finish().hex_encode()] = offset
+	var index := 0
+	var ok := true
+	for part in plan.get("chunks",[]):
+		index += 1
+		_message("正在更新资源：%d / %d" % [index,plan.chunks.size()])
+		var size := int(part.get("size",0))
+		var digest := str(part.get("sha256",""))
+		if size<=0 or size>1048576 or digest.length()!=64 or not _allowed_download(str(part.get("url",""))):
+			ok = false
+			break
+		if hashes.has(digest):
+			old.seek(hashes[digest])
+			staged.store_buffer(old.get_buffer(size))
+		else:
+			var result := await _fetch(str(part.url),"user://update-chunk.bin",digest)
+			if result.is_empty():
+				ok = false
+				break
+			staged.store_buffer(FileAccess.get_file_as_bytes("user://update-chunk.bin"))
+	old.close()
+	staged.close()
+	busy = false
+	if not ok or FileAccess.get_sha256("user://resource-update.pck") != str(plan.get("sha256","")):
+		_message("增量更新下载或校验失败，原版本未改变。")
+		return
+	var pid := OS.create_process(OS.get_executable_path().get_base_dir().path_join("DeskPetUpdater.exe"),PackedStringArray([str(OS.get_process_id()),ProjectSettings.globalize_path("user://resource-update.pck"),str(plan.sha256),str(offer.version)]))
+	if pid>0: get_tree().quit()
+	else: _message("无法启动更新器，原版本未改变。")

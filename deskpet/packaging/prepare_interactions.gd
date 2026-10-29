@@ -1,6 +1,6 @@
 extends SceneTree
 func _init() -> void:
-	var source := Image.load_from_file("res://assets/ui/headpat_unified.png")
+	var source := Image.load_from_file("res://../asset_sources/spirit/animations/headpat/headpat_unified.png")
 	var reference := Image.load_from_file("res://assets/character/spirit/idle/front_01.png")
 	var reference_bounds := solid_bounds(reference)
 	var factor := 1.0
