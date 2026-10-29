@@ -15,6 +15,8 @@ const MOVE_ACTIONS := {
 	"pet_move_right": [KEY_D, KEY_RIGHT],
 }
 
+var _cursor_images: Dictionary = {}
+
 var activity_controller: PetActivityController
 
 var last_error: String = ""
@@ -42,6 +44,7 @@ func setup(state_machine: ActionStateMachine, character: Character, brain: Behav
 		push_error("[PetInput] " + last_error)
 		return false
 	activity_controller = get_parent().get_node_or_null("ActivityController")
+	Input.set_custom_mouse_cursor(null, Input.CURSOR_ARROW)
 	Input.set_custom_mouse_cursor(load("res://assets/ui/default_cursor.png"), Input.CURSOR_CROSS, Vector2(2, 12))
 	Input.set_custom_mouse_cursor(load("res://assets/ui/pat.png"), Input.CURSOR_POINTING_HAND, Vector2(12, 12))
 	Input.set_custom_mouse_cursor(load("res://assets/ui/click.png"), Input.CURSOR_HELP, Vector2(12, 12))
@@ -56,9 +59,8 @@ func _process(_delta: float) -> void:
 		else:
 			_pressed = false
 	if _character != null:
-		var menu: PetMenu = get_parent().get_node_or_null("PetMenu")
-		var hover := _is_head(get_viewport().get_mouse_position()) and activity_controller != null and activity_controller.current_activity == "idle" and not activity_controller.transitioning and _state_machine.current_state == "idle"
-		Input.set_default_cursor_shape(Input.CURSOR_CROSS if menu != null and menu.is_menu_visible() else (Input.CURSOR_POINTING_HAND if hover and _on_character_pixel() else (Input.CURSOR_CROSS if _on_character_pixel() else Input.CURSOR_ARROW)))
+		var hover := _is_head(_pointer_position()) and activity_controller != null and activity_controller.current_activity == "idle" and not activity_controller.transitioning and _state_machine.current_state == "idle"
+		Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND if hover and _on_character_pixel() else (Input.CURSOR_CROSS if _on_character_pixel() else Input.CURSOR_ARROW))
 	if _state_machine == null:
 		return
 	if activity_controller != null and (activity_controller.transitioning or activity_controller.current_activity != "idle"):
@@ -168,6 +170,13 @@ func _on_character_pixel() -> bool:
 	var sprite := _character.animated_body
 	if sprite.sprite_frames == null: return false
 	var texture := sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
-	var point := sprite.to_local(_character.get_global_mouse_position()) - sprite.offset
+	var point := sprite.get_global_transform_with_canvas().affine_inverse() * _pointer_position() - sprite.offset
 	if not Rect2(Vector2.ZERO, texture.get_size()).has_point(point): return false
-	return texture.get_image().get_pixelv(Vector2i(point)).a > 0.2
+	if not _cursor_images.has(texture):
+		_cursor_images[texture] = texture.get_image()
+	return _cursor_images[texture].get_pixelv(Vector2i(point)).a > 0.2
+
+func _pointer_position() -> Vector2:
+	# Screen coordinates keep updating when transparent pixels receive no motion events.
+	var local := Vector2(DisplayServer.mouse_get_position() - get_window().position)
+	return get_viewport().get_final_transform().affine_inverse() * local

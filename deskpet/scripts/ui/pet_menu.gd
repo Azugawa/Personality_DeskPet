@@ -46,6 +46,16 @@ func show_actions(entries: Array, _position: Vector2) -> void:
 	_content.custom_minimum_size = Vector2(WIDTH, height)
 	_content.size = Vector2(WIDTH, height)
 	_piece(Rect2(0,0,1177,405),Rect2(0,0,WIDTH,HEADER))
+	var border := Panel.new()
+	border.position = Vector2(36, HEADER)
+	border.size = Vector2(170, ROW*entries.size())
+	border.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("5278b8")
+	style.border_color = Color("203b70")
+	style.set_border_width_all(4)
+	border.add_theme_stylebox_override("panel",style)
+	_content.add_child(border)
 	var font: FontFile = load("res://assets/fonts/pixel.ttf")
 	font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
 	for index in entries.size():

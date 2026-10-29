@@ -1,0 +1,14 @@
+{
+  "feeds": [
+    "https://github.com/Azugawa/Personality_DeskPet/releases/latest/download/update.json"
+  ],
+  "allowed_download_prefixes": [
+    "https://github.com/Azugawa/Personality_DeskPet/releases/download/"
+  ],
+  "github_proxy_prefixes": [
+    "https://gh-proxy.com/",
+    "https://ghproxy.net/",
+    "https://ghproxy.homeboyc.cn/",
+    "https://github.akams.cn/"
+  ]
+}
