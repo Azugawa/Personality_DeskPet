@@ -10,6 +10,8 @@ func run() -> void:
 		await process_frame
 		await process_frame
 		assert(panel._tabs.get_tab_count() > 0)
+		assert(panel.size.x <= 400)
+		assert(panel.size.y <= 600)
 		print("PANEL_OK ", kind, " size=", panel.size)
 		panel.queue_free()
 		await process_frame

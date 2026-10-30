@@ -27,6 +27,7 @@ var _ready_for_use: bool = false
 
 
 func setup(config_path: String = WORLD_CONFIG_PATH) -> bool:
+	add_to_group("pet_world")
 	last_error = ""
 	world_config = ConfigLoader.load_json(config_path)
 	if world_config.is_empty():
@@ -173,6 +174,18 @@ func get_snapshot() -> Dictionary:
 
 func get_character() -> Character:
 	return character
+
+
+## Screen-space bounds of the character sprite, used to place assistant panels.
+func get_character_screen_rect() -> Rect2:
+	if character == null:
+		return Rect2()
+	var content := character.get_content_size()
+	var canvas := character.get_global_transform_with_canvas()
+	var screen := get_viewport().get_screen_transform()
+	var top_left := screen * (canvas * Vector2(-content.x * 0.5, -content.y))
+	var bottom_right := screen * (canvas * Vector2(content.x * 0.5, 0.0))
+	return Rect2(top_left, bottom_right - top_left)
 
 
 func get_state_machine() -> ActionStateMachine:

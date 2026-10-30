@@ -34,7 +34,6 @@ var reminder_presenter: Node
 var work_break_presenter: Node
 
 var _assistant_window: Window = null
-var _panels: Dictionary = {}
 
 
 func _ready() -> void:
@@ -144,10 +143,19 @@ func handle_menu_action(action_id: String) -> void:
 func open_panel(tab_name: String) -> void:
 	if DisplayServer.get_name() == "headless":
 		return
-	_assistant_window = _panels.get(tab_name)
-	if _assistant_window == null or not is_instance_valid(_assistant_window):
-		_assistant_window = AssistantWindowScript.new()
-		_assistant_window.panel_kind = tab_name
-		add_child(_assistant_window)
-		_panels[tab_name] = _assistant_window
+	if _assistant_window != null and is_instance_valid(_assistant_window):
+		_assistant_window.hide()
+		_assistant_window.queue_free()
+		_assistant_window = null
+	_assistant_window = AssistantWindowScript.new()
+	_assistant_window.panel_kind = tab_name
+	add_child(_assistant_window)
 	_assistant_window.open_tab(tab_name)
+
+
+## Screen-space rectangle of the pet, used to anchor feature panels next to it.
+func get_character_screen_rect() -> Rect2:
+	var world := get_tree().get_first_node_in_group("pet_world")
+	if world != null and world.has_method("get_character_screen_rect"):
+		return world.get_character_screen_rect()
+	return Rect2()

@@ -37,16 +37,17 @@ var _autostart_check: CheckBox
 
 
 func _ready() -> void:
+	hide()
 	title = panel_kind
-	size = Vector2i(460, 530)
-	if panel_kind == TAB_WORK: size.y = 380
-	if panel_kind == TAB_WEATHER: size.y = 580
-	min_size = Vector2i(440, 420)
+	size = Vector2i(390, 430)
+	if panel_kind == TAB_WORK: size.y = 340
+	if panel_kind == TAB_WEATHER: size.y = 500
+	min_size = Vector2i(340, 360)
 	always_on_top = true
 	borderless = true
 	transparent = true
 	transparent_bg = true
-	size.y += 100
+	size.y += 88
 	var usable := DisplayServer.screen_get_usable_rect()
 	position = usable.position + (usable.size - size) / 2
 	close_requested.connect(_on_close_requested)
@@ -58,12 +59,12 @@ func _ready() -> void:
 	var style := PixelDialogSkin.pixel_box(Color("e2f2ff"))
 	background.add_theme_stylebox_override("panel", style)
 	add_child(background)
-	background.offset_top = 100
+	background.offset_top = 88
 	var decoration := Control.new()
 	decoration.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	decoration.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(decoration)
-	PixelDialogSkin.add_topper(decoration, size.x)
+	PixelDialogSkin.add_topper(decoration, size.x, 104)
 	size_changed.connect(func():
 		decoration.get_child(0).position.x = (size.x - decoration.get_child(0).texture.get_width() * decoration.get_child(0).scale.x) / 2
 	)
@@ -71,7 +72,7 @@ func _ready() -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 22)
+		margin.add_theme_constant_override("margin_" + side, 18)
 	background.add_child(margin)
 	_tabs = TabContainer.new()
 	_tabs.add_theme_stylebox_override("panel", _content_style())
@@ -123,10 +124,28 @@ func _on_tick() -> void:
 
 
 func open_tab(tab_name: String) -> void:
-	var pos := DisplayServer.mouse_get_position() + Vector2i(8, 8)
-	var screen := DisplayServer.screen_get_usable_rect(DisplayServer.get_screen_from_rect(Rect2i(pos, Vector2i.ONE)))
-	if pos.x + size.x > screen.end.x: pos.x -= size.x + 16
-	position = Vector2i(clampi(pos.x, screen.position.x, maxi(screen.position.x, screen.end.x - size.x)), clampi(pos.y, screen.position.y, maxi(screen.position.y, screen.end.y - size.y)))
+	var pet_rect := Rect2()
+	if FeatureServices.has_method("get_character_screen_rect"):
+		pet_rect = FeatureServices.get_character_screen_rect()
+	var screen: Rect2i
+	var pos: Vector2i
+	if pet_rect.size.x > 1.0 and pet_rect.size.y > 1.0:
+		var pet_recti := Rect2i(Vector2i(pet_rect.position.round()), Vector2i(pet_rect.size.round()))
+		screen = DisplayServer.screen_get_usable_rect(DisplayServer.get_screen_from_rect(pet_recti))
+		var gap := 14
+		pos.x = pet_recti.end.x + gap
+		pos.y = pet_recti.position.y + int(pet_recti.size.y / 2.0) - int(size.y / 2.0)
+		if pos.x + size.x > screen.end.x:
+			pos.x = pet_recti.position.x - size.x - gap
+		if pos.x < screen.position.x + 8:
+			pos.x = screen.position.x + 8
+		pos.y = clampi(pos.y, screen.position.y + 8, maxi(screen.position.y + 8, screen.end.y - size.y - 8))
+	else:
+		pos = DisplayServer.mouse_get_position() + Vector2i(8, 8)
+		screen = DisplayServer.screen_get_usable_rect(DisplayServer.get_screen_from_rect(Rect2i(pos, Vector2i.ONE)))
+		if pos.x + size.x > screen.end.x: pos.x -= size.x + 16
+		pos = Vector2i(clampi(pos.x, screen.position.x, maxi(screen.position.x, screen.end.x - size.x)), clampi(pos.y, screen.position.y, maxi(screen.position.y, screen.end.y - size.y)))
+	position = pos
 	show()
 	if panel_kind == "C 盘检查":
 		_restart_drive_scan()
