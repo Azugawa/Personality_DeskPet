@@ -249,6 +249,10 @@ func _build_reminder_tab() -> void:
 	_minute_wheel.value_changed.connect(func(_value: int): _update_time_preview())
 	date_time_row.add_child(_minute_wheel)
 	_calendar_popup = PopupPanel.new()
+	_calendar_popup.transparent = true
+	_calendar_popup.transparent_bg = true
+	_calendar_popup.borderless = true
+	_calendar_popup.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	add_child(_calendar_popup)
 	_calendar_panel = _build_calendar_panel()
 	_calendar_popup.add_child(_calendar_panel)
@@ -300,7 +304,12 @@ func _build_calendar_panel() -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.visible = true
 	panel.theme = PixelDialogSkin.create_theme()
-	panel.add_theme_stylebox_override("panel", PixelDialogSkin.pixel_box(Color("f4fbff"), 6))
+	var calendar_style := StyleBoxFlat.new()
+	calendar_style.bg_color = Color("f4fbff")
+	calendar_style.border_color = Color("8db8e8")
+	calendar_style.set_border_width_all(2)
+	calendar_style.set_corner_radius_all(8)
+	panel.add_theme_stylebox_override("panel", calendar_style)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 6)
 	panel.add_child(column)
@@ -314,16 +323,18 @@ func _build_calendar_panel() -> PanelContainer:
 	previous.pressed.connect(_shift_calendar_month.bind(-1))
 	header.add_child(previous)
 	_calendar_year_option = OptionButton.new()
-	_calendar_year_option.custom_minimum_size = Vector2(86, 28)
+	_calendar_year_option.custom_minimum_size = Vector2(86, 30)
 	for offset in 6:
 		_calendar_year_option.add_item(str(_calendar_year_base + offset))
 	_calendar_year_option.item_selected.connect(_on_calendar_year_selected)
+	_style_calendar_option(_calendar_year_option)
 	header.add_child(_calendar_year_option)
 	_calendar_month_option = OptionButton.new()
-	_calendar_month_option.custom_minimum_size = Vector2(72, 28)
+	_calendar_month_option.custom_minimum_size = Vector2(72, 30)
 	for month in 12:
 		_calendar_month_option.add_item("%d月" % (month + 1))
 	_calendar_month_option.item_selected.connect(_on_calendar_month_selected)
+	_style_calendar_option(_calendar_month_option)
 	header.add_child(_calendar_month_option)
 	var next := Button.new()
 	next.text = ">"
@@ -347,19 +358,6 @@ func _build_calendar_panel() -> PanelContainer:
 	_calendar_grid.add_theme_constant_override("h_separation", 2)
 	_calendar_grid.add_theme_constant_override("v_separation", 2)
 	column.add_child(_calendar_grid)
-	var footer := HBoxContainer.new()
-	footer.add_theme_constant_override("separation", 8)
-	column.add_child(footer)
-	var today_button := Button.new()
-	today_button.text = "今天"
-	_style_calendar_button(today_button, 30, Color("173763"))
-	today_button.pressed.connect(_select_today)
-	footer.add_child(today_button)
-	var cancel_button := Button.new()
-	cancel_button.text = "取消"
-	_style_calendar_button(cancel_button, 30, Color("173763"))
-	cancel_button.pressed.connect(func(): _calendar_popup.hide())
-	footer.add_child(cancel_button)
 	return panel
 
 
@@ -375,14 +373,41 @@ func _style_calendar_button(button: Button, height: int, color: Color) -> void:
 		button.add_theme_color_override(key, color)
 
 
-func _select_today() -> void:
-	var today := _clock.unix_to_local(_clock.now())
-	_calendar_year_value = clampi(int(today.get("year", _calendar_year_base)), _calendar_year_base, _calendar_year_base + 5)
-	_calendar_month_value = int(today.get("month", 1))
-	_calendar_day_value = int(today.get("day", 1))
-	_calendar_popup.hide()
-	_refresh_calendar_grid()
-	_update_time_preview()
+func _calendar_arrow_icon() -> Texture2D:
+	var image := Image.create(9, 5, false, Image.FORMAT_RGBA8)
+	image.fill(Color.TRANSPARENT)
+	for row in 3:
+		for column in range(row, 9 - row):
+			image.set_pixel(column, row + 1, Color("173763"))
+	return ImageTexture.create_from_image(image)
+
+
+func _calendar_option_style(fill: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = Color("8db8e8")
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(7)
+	style.content_margin_left = 6
+	style.content_margin_right = 18
+	style.content_margin_top = 2
+	style.content_margin_bottom = 2
+	return style
+
+
+func _style_calendar_option(option: OptionButton) -> void:
+	option.add_theme_font_override("font", PixelDialogSkin.load_font())
+	option.add_theme_font_size_override("font_size", 12)
+	option.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	option.add_theme_icon_override("arrow", _calendar_arrow_icon())
+	option.add_theme_constant_override("arrow_margin", 2)
+	option.add_theme_color_override("font_color", Color("173763"))
+	option.add_theme_color_override("font_hover_color", Color("173763"))
+	option.add_theme_color_override("font_pressed_color", Color("173763"))
+	option.add_theme_stylebox_override("normal", _calendar_option_style(Color("f8fcff")))
+	option.add_theme_stylebox_override("hover", _calendar_option_style(Color("eef8ff")))
+	option.add_theme_stylebox_override("pressed", _calendar_option_style(Color("dcefff")))
+	option.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
 
 func _on_calendar_year_selected(index: int) -> void:
@@ -457,6 +482,26 @@ func _refresh_calendar_grid() -> void:
 		button.pressed.connect(_select_calendar_day.bind(day))
 		_calendar_grid.add_child(button)
 	_refresh_date_button()
+	if _calendar_popup != null and _calendar_popup.visible:
+		_resize_calendar_popup.call_deferred()
+
+
+func _resize_calendar_popup() -> void:
+	if _calendar_popup == null or not _calendar_popup.visible:
+		return
+	var content_size := _calendar_panel.get_combined_minimum_size()
+	_calendar_popup.size = Vector2i(maxi(248, int(content_size.x) + 8), int(content_size.y) + 8)
+	_clamp_calendar_popup_position()
+
+
+func _clamp_calendar_popup_position() -> void:
+	if _date_button == null or _calendar_popup == null:
+		return
+	var pos := _date_button.get_screen_position() + Vector2(0, _date_button.size.y + 6)
+	var screen := DisplayServer.screen_get_usable_rect(DisplayServer.get_screen_from_rect(Rect2i(Vector2i(pos), Vector2i.ONE)))
+	pos.x = clampf(pos.x, screen.position.x, maxf(screen.position.x, screen.end.x - _calendar_popup.size.x))
+	pos.y = clampf(pos.y, screen.position.y, maxf(screen.position.y, screen.end.y - _calendar_popup.size.y))
+	_calendar_popup.position = Vector2i(pos)
 
 
 func _toggle_calendar() -> void:
@@ -468,15 +513,7 @@ func _toggle_calendar() -> void:
 	_refresh_calendar_grid()
 	_calendar_popup.popup()
 	await get_tree().process_frame
-	if _calendar_popup == null or not _calendar_popup.visible:
-		return
-	var content_size := _calendar_panel.get_combined_minimum_size()
-	_calendar_popup.size = Vector2i(maxi(248, int(content_size.x) + 8), int(content_size.y) + 8)
-	var pos := _date_button.get_screen_position() + Vector2(0, _date_button.size.y + 6)
-	var screen := DisplayServer.screen_get_usable_rect(DisplayServer.get_screen_from_rect(Rect2i(Vector2i(pos), Vector2i.ONE)))
-	pos.x = clampf(pos.x, screen.position.x, maxf(screen.position.x, screen.end.x - _calendar_popup.size.x))
-	pos.y = clampf(pos.y, screen.position.y, maxf(screen.position.y, screen.end.y - _calendar_popup.size.y))
-	_calendar_popup.position = Vector2i(pos)
+	_resize_calendar_popup()
 
 
 func _select_calendar_day(day: int) -> void:
