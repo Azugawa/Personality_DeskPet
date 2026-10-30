@@ -1,4 +1,4 @@
-param([string]$Version = "0.3.4", [string]$NotesFile = "")
+param([string]$Version = "0.3.5", [string]$NotesFile = "")
 $ErrorActionPreference = 'Stop'
 $env:GCM_INTERACTIVE = 'never'
 $credentialResult = "protocol=https`nhost=github.com`n`n" | git credential fill
