@@ -21,5 +21,23 @@ func run() -> void:
 		print("PANEL_OK ", kind, " size=", panel.size)
 		panel.queue_free()
 		await process_frame
+	var reminder = script.new()
+	reminder.panel_kind = "定时任务"
+	root.add_child(reminder)
+	await process_frame
+	await process_frame
+	reminder._set_time_from_unix(1793282400)
+	assert(reminder._selected_unix() == 1793282400)
+	reminder._set_time_picker_value("year", 2028)
+	reminder._set_time_picker_value("month", 2)
+	assert(reminder._time_pickers["day"]["max"] == 29)
+	reminder._set_time_picker_value("hour", 10)
+	var wheel := InputEventMouseButton.new()
+	wheel.button_index = MOUSE_BUTTON_WHEEL_UP
+	wheel.pressed = true
+	reminder._on_time_picker_wheel(wheel, "hour")
+	assert(reminder._time_pickers["hour"]["value"] == 11)
+	reminder.queue_free()
+	await process_frame
 	print("PASS: assistant panels")
 	quit()

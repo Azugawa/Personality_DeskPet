@@ -12,7 +12,8 @@ var _settings_page: VBoxContainer
 var _tabs: TabContainer
 var _clock := AssistantClock.new()
 var _content_edit: LineEdit
-var _time_edit: LineEdit
+var _time_pickers: Dictionary = {}
+var _time_preview: Label
 var _status_label: Label
 var _list: VBoxContainer
 var _sentinel_summary: Label
@@ -206,16 +207,31 @@ func _build_reminder_tab() -> void:
 	_content_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	input_row.add_child(_label("提醒内容"))
 	input_row.add_child(_content_edit)
-	_time_edit = LineEdit.new()
-	_time_edit.placeholder_text = "YYYY-MM-DD HH:MM"
-	_time_edit.custom_minimum_size = Vector2(210, 0)
-	_time_edit.text = _clock.format_local(_clock.now() + 600)
-	input_row.add_child(_label("提醒时间"))
-	input_row.add_child(_time_edit)
+
+	var now_local := _clock.unix_to_local(_clock.now())
+	var year := int(now_local.get("year", 2026))
+	input_row.add_child(_label("提醒日期与时间"))
+	var time_row := HBoxContainer.new()
+	time_row.add_theme_constant_override("separation", 4)
+	input_row.add_child(time_row)
+	time_row.add_child(_make_scroll_picker("year", year, year + 5, "年", 82))
+	time_row.add_child(_make_scroll_picker("month", 1, 12, "月", 58))
+	time_row.add_child(_make_scroll_picker("day", 1, 31, "日", 58))
+	time_row.add_child(_make_scroll_picker("hour", 0, 23, "时", 58))
+	time_row.add_child(_make_scroll_picker("minute", 0, 59, "分", 58))
+
+	_time_preview = Label.new()
+	_time_preview.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_time_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var action_row := HBoxContainer.new()
+	action_row.add_theme_constant_override("separation", 8)
+	input_row.add_child(action_row)
+	action_row.add_child(_time_preview)
 	var add_button := Button.new()
 	add_button.text = "创建提醒"
 	add_button.pressed.connect(_add_at_time)
-	input_row.add_child(add_button)
+	action_row.add_child(add_button)
+	_set_time_from_unix(_clock.now() + 600)
 
 	var quick_row := HFlowContainer.new()
 	quick_row.add_theme_constant_override("separation", 8)
@@ -241,6 +257,152 @@ func _build_reminder_tab() -> void:
 	_list.add_theme_constant_override("separation", 6)
 	scroll.add_child(_list)
 	_refresh_list()
+
+
+func _make_scroll_picker(key: String, min_value: int, max_value: int, suffix: String, width: int) -> Control:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(width, 38)
+	panel.add_theme_stylebox_override("panel", PixelDialogSkin.pixel_box(Color("f8fcff"), 6))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 2)
+	panel.add_child(row)
+	var label := Label.new()
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.mouse_filter = Control.MOUSE_FILTER_PASS
+	label.set_meta("compact_picker_label", true)
+	label.add_theme_font_size_override("font_size", 12)
+	row.add_child(label)
+	var arrows := VBoxContainer.new()
+	arrows.add_theme_constant_override("separation", 0)
+	arrows.custom_minimum_size = Vector2(16, 0)
+	arrows.mouse_filter = Control.MOUSE_FILTER_PASS
+	row.add_child(arrows)
+	var up := Button.new()
+	up.text = "+"
+	up.flat = true
+	up.focus_mode = Control.FOCUS_NONE
+	up.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	up.add_theme_font_size_override("font_size", 10)
+	up.set_meta("compact_picker_button", true)
+	up.custom_minimum_size = Vector2(16, 17)
+	up.pressed.connect(_change_time_picker.bind(key, 1))
+	arrows.add_child(up)
+	var down := Button.new()
+	down.text = "-"
+	down.flat = true
+	down.focus_mode = Control.FOCUS_NONE
+	down.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	down.add_theme_font_size_override("font_size", 10)
+	down.set_meta("compact_picker_button", true)
+	down.custom_minimum_size = Vector2(16, 17)
+	down.pressed.connect(_change_time_picker.bind(key, -1))
+	arrows.add_child(down)
+	panel.gui_input.connect(_on_time_picker_wheel.bind(key))
+	label.gui_input.connect(_on_time_picker_wheel.bind(key))
+	_time_pickers[key] = {
+		"label": label,
+		"value": min_value,
+		"min": min_value,
+		"max": max_value,
+		"suffix": suffix,
+	}
+	_refresh_picker_label(key)
+	return panel
+
+
+func _refresh_picker_label(key: String) -> void:
+	var info: Dictionary = _time_pickers.get(key, {})
+	if info.is_empty():
+		return
+	var label: Label = info.get("label")
+	label.text = "%d%s" % [int(info.get("value", 0)), str(info.get("suffix", ""))]
+
+
+func _refresh_day_limit() -> void:
+	var info: Dictionary = _time_pickers.get("day", {})
+	if info.is_empty():
+		return
+	var max_day := _days_in_month(int(_time_pickers["year"].get("value", 1970)), int(_time_pickers["month"].get("value", 1)))
+	info["max"] = max_day
+	if int(info.get("value", 1)) > max_day:
+		info["value"] = max_day
+	_refresh_picker_label("day")
+
+
+func _set_picker_raw(key: String, value: int) -> void:
+	var info: Dictionary = _time_pickers.get(key, {})
+	if info.is_empty():
+		return
+	info["value"] = clampi(value, int(info.get("min", 0)), int(info.get("max", 0)))
+	_refresh_picker_label(key)
+
+
+func _set_time_picker_value(key: String, value: int) -> void:
+	_set_picker_raw(key, value)
+	if key == "year" or key == "month":
+		_refresh_day_limit()
+	_update_time_preview()
+
+
+func _change_time_picker(key: String, delta: int) -> void:
+	var info: Dictionary = _time_pickers.get(key, {})
+	if info.is_empty():
+		return
+	_set_time_picker_value(key, int(info.get("value", 0)) + delta)
+
+
+func _on_time_picker_wheel(event: InputEvent, key: String) -> void:
+	if not event is InputEventMouseButton or not event.pressed:
+		return
+	if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+		_change_time_picker(key, 1)
+		get_viewport().set_input_as_handled()
+	elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		_change_time_picker(key, -1)
+		get_viewport().set_input_as_handled()
+
+
+func _days_in_month(year: int, month: int) -> int:
+	var days := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+	if month == 2 and year % 4 == 0 and (year % 100 != 0 or year % 400 == 0):
+		return 29
+	return int(days[clampi(month - 1, 0, 11)])
+
+
+func _set_time_from_unix(unix_seconds: int) -> void:
+	if _time_pickers.is_empty():
+		return
+	var parts := _clock.unix_to_local(unix_seconds)
+	_set_picker_raw("year", int(parts.get("year", 1970)))
+	_set_picker_raw("month", int(parts.get("month", 1)))
+	_refresh_day_limit()
+	_set_picker_raw("day", int(parts.get("day", 1)))
+	_set_picker_raw("hour", int(parts.get("hour", 0)))
+	_set_picker_raw("minute", int(parts.get("minute", 0)))
+	_update_time_preview()
+
+
+func _selected_unix() -> int:
+	return _clock.local_to_unix({
+		"year": int(_time_pickers.get("year", {}).get("value", 1970)),
+		"month": int(_time_pickers.get("month", {}).get("value", 1)),
+		"day": int(_time_pickers.get("day", {}).get("value", 1)),
+		"hour": int(_time_pickers.get("hour", {}).get("value", 0)),
+		"minute": int(_time_pickers.get("minute", {}).get("value", 0)),
+		"second": 0,
+	})
+
+
+func _update_time_preview() -> void:
+	if _time_preview == null:
+		return
+	var unix := _selected_unix()
+	var text := "将提醒：" + _clock.format_local(unix)
+	if unix <= _clock.now():
+		text += "（已过去）"
+	_time_preview.text = text
 
 
 func _build_weather_tab() -> void:
@@ -698,11 +860,11 @@ func _format_gb(bytes: int) -> String:
 
 
 func _add_at_time() -> void:
-	var parsed := _clock.parse_local(_time_edit.text)
-	if parsed.is_empty():
-		_set_status("时间格式应为 YYYY-MM-DD HH:MM")
+	var due_at := _selected_unix()
+	if due_at <= _clock.now():
+		_set_status("提醒时间必须晚于当前时间")
 		return
-	var result: Dictionary = FeatureServices.reminder.add_at(_content_edit.text, int(parsed.get("unix", 0)))
+	var result: Dictionary = FeatureServices.reminder.add_at(_content_edit.text, due_at)
 	if not bool(result.get("ok", false)):
 		_set_status(str(result.get("error", "添加失败")))
 		return
@@ -771,7 +933,8 @@ func _set_status(message: String) -> void:
 
 func _style_controls(node: Node) -> void:
 	if node is Button and not node is CheckBox:
-		node.custom_minimum_size = Vector2(0, 40)
+		if not node.has_meta("compact_picker_button"):
+			node.custom_minimum_size = Vector2(0, 40)
 		node.theme = PixelDialogSkin.create_theme()
 	if node is LineEdit:
 		node.custom_minimum_size.y = 38
@@ -787,7 +950,8 @@ func _style_controls(node: Node) -> void:
 		node.add_theme_stylebox_override("normal", field)
 		node.add_theme_stylebox_override("focus", field)
 	if node is Label:
-		node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		if not node.has_meta("compact_picker_label"):
+			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	for child in node.get_children():
 		_style_controls(child)
 
