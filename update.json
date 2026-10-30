@@ -1,12 +1,12 @@
 {
   "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.8/DeskPet-Setup-0.3.8.exe",
   "version": "0.3.8",
-  "sha256": "cec240b084f881da34d878b4ab784df264155451c7a9dba6dbdcac1c45d37a10",
+  "sha256": "7521d8aeb1c2470d9dc90e7f0587072650aac9e1b280ec383cdcd5faa7ab4985",
   "resource_update": {
     "chunks": [
       {
-        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.8/chunk-1a1d631dda4c16be64ecee6438a68506219d098b7af06cf4f6bc0402914c865f.bin",
-        "sha256": "1a1d631dda4c16be64ecee6438a68506219d098b7af06cf4f6bc0402914c865f",
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.8/chunk-bf17e8725cfdde3eaa0fc820d09d81f2910cb9f124d72f923e8f315c1b8b0d76.bin",
+        "sha256": "bf17e8725cfdde3eaa0fc820d09d81f2910cb9f124d72f923e8f315c1b8b0d76",
         "size": 1048576
       },
       {
@@ -75,14 +75,14 @@
         "size": 1048576
       },
       {
-        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.8/chunk-d9ec2b2fc7c66567ec385ff5b108010c33f1c5b92dd8ca6b72a78bb413309f99.bin",
-        "sha256": "d9ec2b2fc7c66567ec385ff5b108010c33f1c5b92dd8ca6b72a78bb413309f99",
-        "size": 493680
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.8/chunk-9fcd2b74ba827066850e67d6f08c4a0864b5c3e87423cf6bceaba89c59e9c025.bin",
+        "sha256": "9fcd2b74ba827066850e67d6f08c4a0864b5c3e87423cf6bceaba89c59e9c025",
+        "size": 493648
       }
     ],
     "chunk_size": 1048576,
     "format": 1,
-    "sha256": "1e2cd4e4ab5e48b70072858cb90accee6bd72570b1a9dd3bfea492c2209a215f",
+    "sha256": "82d96735ed6840686098bea4a55e10470bec3b19260031f1143c603d712a93b2",
     "engine": "4.7.2"
   }
 }
