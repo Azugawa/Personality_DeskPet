@@ -5,6 +5,7 @@ const TAB_REMINDERS := "定时任务"
 const TAB_WEATHER := "天气"
 const TAB_WORK := "工作模式"
 const TAB_STATUS := "系统状态"
+const TimeWheelScript := preload("res://scripts/ui/time_wheel.gd")
 
 var panel_kind := "定时任务"
 var _scan_generation := 0
@@ -12,7 +13,19 @@ var _settings_page: VBoxContainer
 var _tabs: TabContainer
 var _clock := AssistantClock.new()
 var _content_edit: LineEdit
-var _time_pickers: Dictionary = {}
+var _date_button: Button
+var _calendar_popup: PopupPanel
+var _calendar_panel: PanelContainer
+var _calendar_grid: GridContainer
+var _calendar_year_option: OptionButton
+var _calendar_month_option: OptionButton
+var _calendar_year_base := 2026
+var _calendar_year_value := 2026
+var _calendar_month_value := 1
+var _calendar_day_value := 1
+var _calendar_syncing := false
+var _hour_wheel
+var _minute_wheel
 var _time_preview: Label
 var _status_label: Label
 var _list: VBoxContainer
@@ -208,17 +221,37 @@ func _build_reminder_tab() -> void:
 	input_row.add_child(_label("提醒内容"))
 	input_row.add_child(_content_edit)
 
-	var now_local := _clock.unix_to_local(_clock.now())
-	var year := int(now_local.get("year", 2026))
 	input_row.add_child(_label("提醒日期与时间"))
-	var time_row := HBoxContainer.new()
-	time_row.add_theme_constant_override("separation", 4)
-	input_row.add_child(time_row)
-	time_row.add_child(_make_scroll_picker("year", year, year + 5, "年", 82))
-	time_row.add_child(_make_scroll_picker("month", 1, 12, "月", 58))
-	time_row.add_child(_make_scroll_picker("day", 1, 31, "日", 58))
-	time_row.add_child(_make_scroll_picker("hour", 0, 23, "时", 58))
-	time_row.add_child(_make_scroll_picker("minute", 0, 59, "分", 58))
+	var date_time_row := HBoxContainer.new()
+	date_time_row.add_theme_constant_override("separation", 6)
+	input_row.add_child(date_time_row)
+	_date_button = Button.new()
+	_date_button.text = "选择日期"
+	_date_button.tooltip_text = "从日历选择年月日"
+	_date_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_date_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_date_button.pressed.connect(_toggle_calendar)
+	date_time_row.add_child(_date_button)
+	_hour_wheel = TimeWheelScript.new()
+	_hour_wheel.item_height = 20.0
+	_hour_wheel.custom_minimum_size = Vector2(64, 64)
+	_hour_wheel.setup(0, 23, 19)
+	_hour_wheel.value_changed.connect(func(_value: int): _update_time_preview())
+	date_time_row.add_child(_hour_wheel)
+	var colon := Label.new()
+	colon.text = ":"
+	colon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	date_time_row.add_child(colon)
+	_minute_wheel = TimeWheelScript.new()
+	_minute_wheel.item_height = 20.0
+	_minute_wheel.custom_minimum_size = Vector2(64, 64)
+	_minute_wheel.setup(0, 59, 56)
+	_minute_wheel.value_changed.connect(func(_value: int): _update_time_preview())
+	date_time_row.add_child(_minute_wheel)
+	_calendar_popup = PopupPanel.new()
+	add_child(_calendar_popup)
+	_calendar_panel = _build_calendar_panel()
+	_calendar_popup.add_child(_calendar_panel)
 
 	_time_preview = Label.new()
 	_time_preview.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -259,109 +292,171 @@ func _build_reminder_tab() -> void:
 	_refresh_list()
 
 
-func _make_scroll_picker(key: String, min_value: int, max_value: int, suffix: String, width: int) -> Control:
+func _build_calendar_panel() -> PanelContainer:
+	_calendar_year_base = int(_clock.unix_to_local(_clock.now()).get("year", 2026))
+	_calendar_year_value = _calendar_year_base
+	_calendar_month_value = int(_clock.unix_to_local(_clock.now()).get("month", 1))
+	_calendar_day_value = int(_clock.unix_to_local(_clock.now()).get("day", 1))
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(width, 38)
-	panel.add_theme_stylebox_override("panel", PixelDialogSkin.pixel_box(Color("f8fcff"), 6))
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 2)
-	panel.add_child(row)
-	var label := Label.new()
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.mouse_filter = Control.MOUSE_FILTER_PASS
-	label.set_meta("compact_picker_label", true)
-	label.add_theme_font_size_override("font_size", 12)
-	row.add_child(label)
-	var arrows := VBoxContainer.new()
-	arrows.add_theme_constant_override("separation", 0)
-	arrows.custom_minimum_size = Vector2(16, 0)
-	arrows.mouse_filter = Control.MOUSE_FILTER_PASS
-	row.add_child(arrows)
-	var up := Button.new()
-	up.text = "+"
-	up.flat = true
-	up.focus_mode = Control.FOCUS_NONE
-	up.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	up.add_theme_font_size_override("font_size", 10)
-	up.set_meta("compact_picker_button", true)
-	up.custom_minimum_size = Vector2(16, 17)
-	up.pressed.connect(_change_time_picker.bind(key, 1))
-	arrows.add_child(up)
-	var down := Button.new()
-	down.text = "-"
-	down.flat = true
-	down.focus_mode = Control.FOCUS_NONE
-	down.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	down.add_theme_font_size_override("font_size", 10)
-	down.set_meta("compact_picker_button", true)
-	down.custom_minimum_size = Vector2(16, 17)
-	down.pressed.connect(_change_time_picker.bind(key, -1))
-	arrows.add_child(down)
-	panel.gui_input.connect(_on_time_picker_wheel.bind(key))
-	label.gui_input.connect(_on_time_picker_wheel.bind(key))
-	_time_pickers[key] = {
-		"label": label,
-		"value": min_value,
-		"min": min_value,
-		"max": max_value,
-		"suffix": suffix,
-	}
-	_refresh_picker_label(key)
+	panel.visible = true
+	panel.add_theme_stylebox_override("panel", PixelDialogSkin.pixel_box(Color("f4fbff"), 6))
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 6)
+	panel.add_child(column)
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 4)
+	column.add_child(header)
+	var previous := Button.new()
+	previous.text = "<"
+	previous.set_meta("compact_calendar_button", true)
+	previous.custom_minimum_size = Vector2(26, 24)
+	previous.pressed.connect(_shift_calendar_month.bind(-1))
+	header.add_child(previous)
+	_calendar_year_option = OptionButton.new()
+	_calendar_year_option.custom_minimum_size = Vector2(86, 28)
+	for offset in 6:
+		_calendar_year_option.add_item(str(_calendar_year_base + offset))
+	_calendar_year_option.item_selected.connect(_on_calendar_year_selected)
+	header.add_child(_calendar_year_option)
+	_calendar_month_option = OptionButton.new()
+	_calendar_month_option.custom_minimum_size = Vector2(72, 28)
+	for month in 12:
+		_calendar_month_option.add_item("%d月" % (month + 1))
+	_calendar_month_option.item_selected.connect(_on_calendar_month_selected)
+	header.add_child(_calendar_month_option)
+	var next := Button.new()
+	next.text = ">"
+	next.set_meta("compact_calendar_button", true)
+	next.custom_minimum_size = Vector2(26, 24)
+	next.pressed.connect(_shift_calendar_month.bind(1))
+	header.add_child(next)
+	var weekdays := HBoxContainer.new()
+	weekdays.add_theme_constant_override("separation", 2)
+	column.add_child(weekdays)
+	for name in ["一", "二", "三", "四", "五", "六", "日"]:
+		var label := Label.new()
+		label.text = name
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.add_theme_font_size_override("font_size", 12)
+		label.set_meta("compact_picker_label", true)
+		weekdays.add_child(label)
+	_calendar_grid = GridContainer.new()
+	_calendar_grid.columns = 7
+	_calendar_grid.add_theme_constant_override("h_separation", 2)
+	_calendar_grid.add_theme_constant_override("v_separation", 2)
+	column.add_child(_calendar_grid)
 	return panel
 
 
-func _refresh_picker_label(key: String) -> void:
-	var info: Dictionary = _time_pickers.get(key, {})
-	if info.is_empty():
+func _on_calendar_year_selected(index: int) -> void:
+	if _calendar_syncing:
 		return
-	var label: Label = info.get("label")
-	label.text = "%d%s" % [int(info.get("value", 0)), str(info.get("suffix", ""))]
+	_calendar_year_value = _calendar_year_base + index
+	_refresh_calendar_grid()
 
 
-func _refresh_day_limit() -> void:
-	var info: Dictionary = _time_pickers.get("day", {})
-	if info.is_empty():
+func _on_calendar_month_selected(index: int) -> void:
+	if _calendar_syncing:
 		return
-	var max_day := _days_in_month(int(_time_pickers["year"].get("value", 1970)), int(_time_pickers["month"].get("value", 1)))
-	info["max"] = max_day
-	if int(info.get("value", 1)) > max_day:
-		info["value"] = max_day
-	_refresh_picker_label("day")
+	_calendar_month_value = index + 1
+	_refresh_calendar_grid()
 
 
-func _set_picker_raw(key: String, value: int) -> void:
-	var info: Dictionary = _time_pickers.get(key, {})
-	if info.is_empty():
+func _shift_calendar_month(delta: int) -> void:
+	var year := _calendar_year_value
+	var month := _calendar_month_value + delta
+	if month < 1:
+		month = 12
+		year -= 1
+	elif month > 12:
+		month = 1
+		year += 1
+	year = clampi(year, _calendar_year_base, _calendar_year_base + 5)
+	_calendar_year_value = year
+	_calendar_month_value = month
+	_calendar_day_value = mini(_calendar_day_value, _days_in_month(year, month))
+	_sync_calendar_controls()
+	_refresh_calendar_grid()
+
+
+func _sync_calendar_controls() -> void:
+	if _calendar_year_option == null or _calendar_month_option == null:
 		return
-	info["value"] = clampi(value, int(info.get("min", 0)), int(info.get("max", 0)))
-	_refresh_picker_label(key)
+	_calendar_syncing = true
+	_calendar_year_option.select(clampi(_calendar_year_value - _calendar_year_base, 0, 5))
+	_calendar_month_option.select(clampi(_calendar_month_value - 1, 0, 11))
+	_calendar_syncing = false
 
 
-func _set_time_picker_value(key: String, value: int) -> void:
-	_set_picker_raw(key, value)
-	if key == "year" or key == "month":
-		_refresh_day_limit()
+func _refresh_calendar_grid() -> void:
+	if _calendar_grid == null:
+		return
+	_sync_calendar_controls()
+	_calendar_day_value = mini(_calendar_day_value, _days_in_month(_calendar_year_value, _calendar_month_value))
+	for child in _calendar_grid.get_children():
+		child.queue_free()
+	var first_unix := _clock.local_to_unix({
+		"year": _calendar_year_value,
+		"month": _calendar_month_value,
+		"day": 1,
+		"hour": 12,
+		"minute": 0,
+		"second": 0,
+	})
+	var first_local := _clock.unix_to_local(first_unix)
+	var weekday := int(first_local.get("weekday", 0))
+	var leading := (weekday + 6) % 7
+	for _blank in leading:
+		var blank := Control.new()
+		blank.custom_minimum_size = Vector2(0, 24)
+		blank.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_calendar_grid.add_child(blank)
+	var today := _clock.unix_to_local(_clock.now())
+	for day in range(1, _days_in_month(_calendar_year_value, _calendar_month_value) + 1):
+		var button := Button.new()
+		button.text = str(day)
+		button.flat = true
+		button.set_meta("compact_calendar_button", true)
+		button.custom_minimum_size = Vector2(0, 24)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.add_theme_font_size_override("font_size", 12)
+		button.pressed.connect(_select_calendar_day.bind(day))
+		if day == _calendar_day_value:
+			button.add_theme_color_override("font_color", Color("c0392b"))
+		elif int(today.get("year", 0)) == _calendar_year_value and int(today.get("month", 0)) == _calendar_month_value and int(today.get("day", 0)) == day:
+			button.add_theme_color_override("font_color", Color("2c70b0"))
+		_calendar_grid.add_child(button)
+	_refresh_date_button()
+
+
+func _toggle_calendar() -> void:
+	if _calendar_popup == null or _calendar_panel == null:
+		return
+	if _calendar_popup.visible:
+		_calendar_popup.hide()
+		return
+	_refresh_calendar_grid()
+	_calendar_popup.size = Vector2i(276, 300)
+	var pos := _date_button.get_screen_position() + Vector2(0, _date_button.size.y + 6)
+	var screen := DisplayServer.screen_get_usable_rect(DisplayServer.get_screen_from_rect(Rect2i(Vector2i(pos), Vector2i.ONE)))
+	pos.x = clampf(pos.x, screen.position.x, maxf(screen.position.x, screen.end.x - _calendar_popup.size.x))
+	pos.y = clampf(pos.y, screen.position.y, maxf(screen.position.y, screen.end.y - _calendar_popup.size.y))
+	_calendar_popup.position = Vector2i(pos)
+	_calendar_popup.popup()
+
+
+func _select_calendar_day(day: int) -> void:
+	_calendar_day_value = day
+	_calendar_popup.hide()
+	_refresh_date_button()
 	_update_time_preview()
 
 
-func _change_time_picker(key: String, delta: int) -> void:
-	var info: Dictionary = _time_pickers.get(key, {})
-	if info.is_empty():
+func _refresh_date_button() -> void:
+	if _date_button == null:
 		return
-	_set_time_picker_value(key, int(info.get("value", 0)) + delta)
-
-
-func _on_time_picker_wheel(event: InputEvent, key: String) -> void:
-	if not event is InputEventMouseButton or not event.pressed:
-		return
-	if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-		_change_time_picker(key, 1)
-		get_viewport().set_input_as_handled()
-	elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-		_change_time_picker(key, -1)
-		get_viewport().set_input_as_handled()
+	_date_button.text = "%04d-%02d-%02d" % [_calendar_year_value, _calendar_month_value, _calendar_day_value]
 
 
 func _days_in_month(year: int, month: int) -> int:
@@ -372,25 +467,30 @@ func _days_in_month(year: int, month: int) -> int:
 
 
 func _set_time_from_unix(unix_seconds: int) -> void:
-	if _time_pickers.is_empty():
-		return
 	var parts := _clock.unix_to_local(unix_seconds)
-	_set_picker_raw("year", int(parts.get("year", 1970)))
-	_set_picker_raw("month", int(parts.get("month", 1)))
-	_refresh_day_limit()
-	_set_picker_raw("day", int(parts.get("day", 1)))
-	_set_picker_raw("hour", int(parts.get("hour", 0)))
-	_set_picker_raw("minute", int(parts.get("minute", 0)))
+	var year := int(parts.get("year", _calendar_year_base))
+	if _calendar_year_base == 0:
+		_calendar_year_base = year
+	_calendar_year_value = clampi(year, _calendar_year_base, _calendar_year_base + 5)
+	_calendar_month_value = int(parts.get("month", 1))
+	_calendar_day_value = int(parts.get("day", 1))
+	if _hour_wheel != null:
+		_hour_wheel.set_value(int(parts.get("hour", 0)), false)
+	if _minute_wheel != null:
+		_minute_wheel.set_value(int(parts.get("minute", 0)), false)
+	_sync_calendar_controls()
+	_refresh_calendar_grid()
+	_refresh_date_button()
 	_update_time_preview()
 
 
 func _selected_unix() -> int:
 	return _clock.local_to_unix({
-		"year": int(_time_pickers.get("year", {}).get("value", 1970)),
-		"month": int(_time_pickers.get("month", {}).get("value", 1)),
-		"day": int(_time_pickers.get("day", {}).get("value", 1)),
-		"hour": int(_time_pickers.get("hour", {}).get("value", 0)),
-		"minute": int(_time_pickers.get("minute", {}).get("value", 0)),
+		"year": _calendar_year_value,
+		"month": _calendar_month_value,
+		"day": _calendar_day_value,
+		"hour": _hour_wheel.value if _hour_wheel != null else 0,
+		"minute": _minute_wheel.value if _minute_wheel != null else 0,
 		"second": 0,
 	})
 
@@ -399,7 +499,7 @@ func _update_time_preview() -> void:
 	if _time_preview == null:
 		return
 	var unix := _selected_unix()
-	var text := "将提醒：" + _clock.format_local(unix)
+	var text := "提醒：" + _clock.format_local(unix).substr(5)
 	if unix <= _clock.now():
 		text += "（已过去）"
 	_time_preview.text = text
@@ -502,6 +602,8 @@ func _content_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color("f3f8ff")
 	style.set_corner_radius_all(0)
+	style.content_margin_left = 4
+	style.content_margin_right = 10
 	return style
 
 
@@ -585,13 +687,17 @@ func _forecast_text(day: Dictionary) -> String:
 
 func _weather_card(parent: Control, heading: String) -> Label:
 	var panel := PanelContainer.new()
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", PixelDialogSkin.pixel_box(Color("f3faff")))
 	parent.add_child(panel)
 	var column := VBoxContainer.new()
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_child(column)
 	column.add_child(_label(heading))
 	var body := _label("等待天气数据")
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.custom_minimum_size.x = 0
 	column.add_child(body)
 	return body
 
@@ -933,7 +1039,7 @@ func _set_status(message: String) -> void:
 
 func _style_controls(node: Node) -> void:
 	if node is Button and not node is CheckBox:
-		if not node.has_meta("compact_picker_button"):
+		if not node.has_meta("compact_picker_button") and not node.has_meta("compact_calendar_button"):
 			node.custom_minimum_size = Vector2(0, 40)
 		node.theme = PixelDialogSkin.create_theme()
 	if node is LineEdit:

@@ -28,15 +28,17 @@ func run() -> void:
 	await process_frame
 	reminder._set_time_from_unix(1793282400)
 	assert(reminder._selected_unix() == 1793282400)
-	reminder._set_time_picker_value("year", 2028)
-	reminder._set_time_picker_value("month", 2)
-	assert(reminder._time_pickers["day"]["max"] == 29)
-	reminder._set_time_picker_value("hour", 10)
-	var wheel := InputEventMouseButton.new()
-	wheel.button_index = MOUSE_BUTTON_WHEEL_UP
-	wheel.pressed = true
-	reminder._on_time_picker_wheel(wheel, "hour")
-	assert(reminder._time_pickers["hour"]["value"] == 11)
+	reminder._calendar_year_value = 2028
+	reminder._calendar_month_value = 2
+	reminder._refresh_calendar_grid()
+	assert(reminder._days_in_month(2028, 2) == 29)
+	reminder._select_calendar_day(15)
+	assert(reminder._calendar_day_value == 15)
+	reminder._hour_wheel.set_value(10, false)
+	assert(reminder._hour_wheel.value == 10)
+	reminder._hour_wheel._step(1)
+	await create_timer(0.2).timeout
+	assert(reminder._hour_wheel.value == 11)
 	reminder.queue_free()
 	await process_frame
 	print("PASS: assistant panels")
