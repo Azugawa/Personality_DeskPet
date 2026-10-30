@@ -1,5 +1,5 @@
 extends Node
-const VERSION := "0.3.0"
+const VERSION := "0.3.3"
 const FEED := "https://github.com/Azugawa/Personality_DeskPet/releases/latest/download/update.json"
 const PREFIX := "https://github.com/Azugawa/Personality_DeskPet/releases/download/"
 var update_config: Dictionary = {}
@@ -168,53 +168,13 @@ func _fetch(url: String, file: String = "", expected_hash: String = "") -> Array
 	return []
 
 func _skin_dialog(window: AcceptDialog) -> void:
-	window.borderless = true
-	window.transparent = true
-	window.transparent_bg = true
+	PixelDialogSkin.apply(window)
 	window.get_ok_button().text = "确定"
-	if window is ConfirmationDialog:
-		window.get_cancel_button().text = "取消"
-	var font: FontFile = load("res://assets/fonts/pixel.ttf")
-	font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
-	window.add_theme_font_override("font", font)
-	window.add_theme_font_size_override("font_size", 18)
-	window.add_theme_color_override("font_color", Color("173763"))
-	var panel := _sheet_style(Rect2(1250,827,270,153), 56)
-	panel.content_margin_left = 34
-	panel.content_margin_right = 34
-	panel.content_margin_top = 52
-	panel.content_margin_bottom = 35
-	window.add_theme_stylebox_override("panel",panel)
+	if window is ConfirmationDialog: window.get_cancel_button().text = "取消"
 	var drag := preload("res://scripts/ui/dialog_drag.gd").new()
 	drag.name = "DialogDrag"
 	window.add_child(drag)
-	window.get_label().add_theme_font_override("font",font)
-	window.get_label().add_theme_font_size_override("font_size",18)
-	window.get_label().add_theme_color_override("font_color",Color("173763"))
-	for button in [window.get_ok_button(), window.get_cancel_button() if window is ConfirmationDialog else null]:
-		if button == null: continue
-		# Keep the authored lettering at the same horizontal/vertical scale.
-		var button_width := 255.0 * 40.0 / 62.0 if button == window.get_ok_button() else 238.0 * 40.0 / 62.0
-		button.custom_minimum_size = Vector2(button_width,40)
-		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-		button.mouse_default_cursor_shape = Control.CURSOR_CROSS
-		button.add_theme_font_override("font",font)
-		button.add_theme_font_size_override("font_size",18)
-		button.add_theme_color_override("font_color",Color.WHITE)
-		# Full authored buttons, including both end caps and original pixel lettering.
-		var region := Rect2(344,672,255,62) if button == window.get_ok_button() else Rect2(631,672,238,62)
-		var normal := _sheet_style(region,0)
-		normal.content_margin_left = button_width / 2.0
-		normal.content_margin_right = button_width / 2.0
-		normal.content_margin_top = 20
-		normal.content_margin_bottom = 20
-		button.text = ""
-		button.tooltip_text = "确定" if button == window.get_ok_button() else "取消"
-		button.add_theme_stylebox_override("normal",normal)
-		var hover := normal.duplicate()
-		hover.modulate_color = Color(0.8,0.9,1)
-		button.add_theme_stylebox_override("hover",hover)
-		button.add_theme_stylebox_override("pressed",hover)
+
 
 func _sheet_style(region: Rect2, margin: int) -> StyleBoxTexture:
 	# Give nine-slice its own image so UV stretching cannot sample adjacent atlas art.

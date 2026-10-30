@@ -16,8 +16,9 @@ func _ready() -> void:
 		if button == MOUSE_BUTTON_RIGHT:
 			menu.show_actions([
 				{"id":"0", "label":"隐藏桌宠" if shown else "显示桌宠"},
+				{"id":"1", "label":"设置"},
 				{"id":"2", "label":"检查更新"},
-				{"id":"3", "label":"退出"}],Vector2.ZERO)
+				{"id":"3", "label":"退出"}],Vector2(DisplayServer.mouse_get_position()))
 	)
 	get_tree().auto_accept_quit = false
 	get_window().close_requested.connect(func(): _set_shown(false))
@@ -35,6 +36,7 @@ func _set_shown(value: bool) -> void:
 func _selected(id: int) -> void:
 	match id:
 		0: _set_shown(not shown)
+		1: FeatureServices.open_panel("设置")
 		2:
 			_set_shown(true)
 			UpdateService.check()

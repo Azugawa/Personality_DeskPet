@@ -99,7 +99,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if mouse_button.button_index == MOUSE_BUTTON_RIGHT and mouse_button.pressed:
 			if _character != null and _character.get_screen_bounds().has_point(mouse_button.position):
 				Input.set_default_cursor_shape(Input.CURSOR_HELP)
-				context_menu_requested.emit(mouse_button.position)
+				context_menu_requested.emit(Vector2(DisplayServer.mouse_get_position()))
 				get_viewport().set_input_as_handled()
 
 

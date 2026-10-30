@@ -188,18 +188,7 @@ func get_state() -> Dictionary:
 
 
 func menu_label() -> String:
-	match _mode:
-		"off":
-			return "工作模式：关"
-		"manual":
-			if _phase == "break":
-				return "工作模式：休息中（%s）" % _clock.format_duration(_break_remaining)
-			return "工作模式：开（剩 %s）" % _clock.format_duration(maxi(0, _work_seconds - _active_seconds))
-		"auto":
-			if _phase == "break":
-				return "工作模式：休息中（%s）" % _clock.format_duration(_break_remaining)
-			return "工作模式：自动（剩 %s）" % _clock.format_duration(maxi(0, _work_seconds - _active_seconds))
-	return "工作模式：关"
+	return "开启工作模式" if _mode == "off" else "关闭工作模式"
 
 
 func save_now() -> void:

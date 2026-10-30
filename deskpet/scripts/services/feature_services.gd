@@ -34,6 +34,7 @@ var reminder_presenter: Node
 var work_break_presenter: Node
 
 var _assistant_window: Window = null
+var _panels: Dictionary = {}
 
 
 func _ready() -> void:
@@ -133,6 +134,7 @@ func handle_menu_action(action_id: String) -> void:
 		"assistant_work_mode":
 			if work_mode != null:
 				work_mode.toggle()
+
 		"assistant_sentinel":
 			open_panel("系统状态")
 		_:
@@ -142,7 +144,10 @@ func handle_menu_action(action_id: String) -> void:
 func open_panel(tab_name: String) -> void:
 	if DisplayServer.get_name() == "headless":
 		return
+	_assistant_window = _panels.get(tab_name)
 	if _assistant_window == null or not is_instance_valid(_assistant_window):
 		_assistant_window = AssistantWindowScript.new()
+		_assistant_window.panel_kind = tab_name
 		add_child(_assistant_window)
+		_panels[tab_name] = _assistant_window
 	_assistant_window.open_tab(tab_name)

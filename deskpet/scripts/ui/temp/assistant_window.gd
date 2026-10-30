@@ -1,14 +1,14 @@
 extends Window
-## Temporary assistant window (pixel font) used until the final UI is designed.
-##
-## Tabs are intentionally minimal: they only exercise the backend contracts.
-## Replace this whole window later; the services do not depend on it.
+## Independent pixel panels backed by the existing assistant services.
 
 const TAB_REMINDERS := "定时任务"
 const TAB_WEATHER := "天气"
 const TAB_WORK := "工作模式"
 const TAB_STATUS := "系统状态"
 
+var panel_kind := "定时任务"
+var _scan_generation := 0
+var _settings_page: VBoxContainer
 var _tabs: TabContainer
 var _clock := AssistantClock.new()
 var _content_edit: LineEdit
@@ -26,6 +26,8 @@ var _weather_city_lat: LineEdit
 var _weather_city_lon: LineEdit
 var _weather_status: Label
 var _weather_summary: Label
+var _weather_today: Label
+var _weather_tomorrow: Label
 var _weather_advice: Label
 var _drive_status: Label
 var _drive_summary: Label
@@ -35,38 +37,77 @@ var _autostart_check: CheckBox
 
 
 func _ready() -> void:
-	title = "何爪爪助手（临时界面）"
-	size = Vector2i(780, 580)
-	min_size = Vector2i(700, 520)
+	title = panel_kind
+	size = Vector2i(460, 530)
+	if panel_kind == TAB_WORK: size.y = 380
+	if panel_kind == TAB_WEATHER: size.y = 580
+	min_size = Vector2i(440, 420)
 	always_on_top = true
-	borderless = false
+	borderless = true
+	transparent = true
+	transparent_bg = true
+	size.y += 100
 	var usable := DisplayServer.screen_get_usable_rect()
 	position = usable.position + (usable.size - size) / 2
 	close_requested.connect(_on_close_requested)
-	var theme := Theme.new()
-	theme.default_font = PixelDialogSkin.load_font()
-	theme.default_font_size = 18
+	var theme := PixelDialogSkin.create_theme()
 	var background := PanelContainer.new()
+	background.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	background.theme = theme
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("dbe8ff")
-	style.border_color = Color("5a86c8")
-	style.set_border_width_all(4)
+	var style := PixelDialogSkin.pixel_box(Color("e2f2ff"))
 	background.add_theme_stylebox_override("panel", style)
 	add_child(background)
+	background.offset_top = 100
+	var decoration := Control.new()
+	decoration.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	decoration.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(decoration)
+	PixelDialogSkin.add_topper(decoration, size.x)
+	size_changed.connect(func():
+		decoration.get_child(0).position.x = (size.x - decoration.get_child(0).texture.get_width() * decoration.get_child(0).scale.x) / 2
+	)
+	window_input.connect(_on_header_input)
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 14)
+		margin.add_theme_constant_override("margin_" + side, 22)
 	background.add_child(margin)
 	_tabs = TabContainer.new()
 	_tabs.add_theme_stylebox_override("panel", _content_style())
-	margin.add_child(_tabs)
-	_build_reminder_tab()
-	_build_weather_tab()
-	_build_work_tab()
-	_build_status_tab()
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 12)
+	margin.add_child(layout)
+	layout.add_child(PixelDialogSkin.heading(panel_kind))
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	layout.add_child(scroll)
+	_tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_tabs)
+	var close_button := Button.new()
+	close_button.text = "收起面板"
+	close_button.pressed.connect(hide)
+	_style_controls(close_button)
+	layout.add_child(close_button)
+	_tabs.tabs_visible = false
+	match panel_kind:
+		TAB_REMINDERS: _build_reminder_tab()
+		TAB_WEATHER: _build_weather_tab()
+		TAB_STATUS: _build_status_tab()
+		"C 盘检查": _build_drive_tab()
+		"设置":
+			_build_weather_tab()
+			_build_status_tab()
+			_tabs.current_tab = 0
+	if panel_kind == "设置":
+		for child in _tabs.get_children():
+			if child != _settings_page:
+				_tabs.remove_child(child)
+				child.hide()
+				add_child(child)
+	_style_controls(_tabs)
 	var timer := Timer.new()
 	timer.wait_time = 1.0
 	timer.autostart = true
@@ -75,14 +116,22 @@ func _ready() -> void:
 
 
 func _on_tick() -> void:
+	if not visible: return
 	_refresh_list()
 	_refresh_work()
 	_refresh_status()
 
 
 func open_tab(tab_name: String) -> void:
-	if not visible:
-		show()
+	var pos := DisplayServer.mouse_get_position() + Vector2i(8, 8)
+	var screen := DisplayServer.screen_get_usable_rect(DisplayServer.get_screen_from_rect(Rect2i(pos, Vector2i.ONE)))
+	if pos.x + size.x > screen.end.x: pos.x -= size.x + 16
+	position = Vector2i(clampi(pos.x, screen.position.x, maxi(screen.position.x, screen.end.x - size.x)), clampi(pos.y, screen.position.y, maxi(screen.position.y, screen.end.y - size.y)))
+	show()
+	if panel_kind == "C 盘检查":
+		_restart_drive_scan()
+	if panel_kind == TAB_WEATHER:
+		_refresh_weather()
 	for index in _tabs.get_tab_count():
 		if _tabs.get_tab_title(index) == tab_name:
 			_tabs.current_tab = index
@@ -109,28 +158,31 @@ func _build_reminder_tab() -> void:
 	_tabs.add_child(page)
 
 	var title := Label.new()
-	title.text = "定时提醒：指定日期时间，或从当前时间开始计时"
+	title.text = "新建提醒"
 	page.add_child(title)
 
-	var input_row := HBoxContainer.new()
+	var input_row := VBoxContainer.new()
 	input_row.add_theme_constant_override("separation", 8)
 	page.add_child(input_row)
 	_content_edit = LineEdit.new()
 	_content_edit.placeholder_text = "提醒内容，例如：喝水 / 交作业"
 	_content_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	input_row.add_child(_label("提醒内容"))
 	input_row.add_child(_content_edit)
 	_time_edit = LineEdit.new()
 	_time_edit.placeholder_text = "YYYY-MM-DD HH:MM"
 	_time_edit.custom_minimum_size = Vector2(210, 0)
 	_time_edit.text = _clock.format_local(_clock.now() + 600)
+	input_row.add_child(_label("提醒时间"))
 	input_row.add_child(_time_edit)
 	var add_button := Button.new()
-	add_button.text = "添加"
+	add_button.text = "创建提醒"
 	add_button.pressed.connect(_add_at_time)
 	input_row.add_child(add_button)
 
-	var quick_row := HBoxContainer.new()
+	var quick_row := HFlowContainer.new()
 	quick_row.add_theme_constant_override("separation", 8)
+	page.add_child(_label("快捷提醒"))
 	page.add_child(quick_row)
 	for seconds in [10, 300, 900, 1800, 3600]:
 		var button := Button.new()
@@ -145,6 +197,7 @@ func _build_reminder_tab() -> void:
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size.y = 64
 	page.add_child(scroll)
 	_list = VBoxContainer.new()
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -161,7 +214,10 @@ func _build_weather_tab() -> void:
 	var title := Label.new()
 	title.text = "和风天气：填写 API Host 与 API Key；坐标只用于天气请求"
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	page.add_child(title)
+	_settings_page = VBoxContainer.new()
+	_settings_page.name = "设置"
+	_tabs.add_child(_settings_page)
+	_settings_page.add_child(title)
 	var settings: Node = FeatureServices.settings
 	if settings == null:
 		var missing := Label.new()
@@ -172,9 +228,9 @@ func _build_weather_tab() -> void:
 	if service != null:
 		service.weather_ready.connect(_on_weather_ready)
 		service.failed.connect(_on_weather_failed)
-	var api_row := HBoxContainer.new()
+	var api_row := VBoxContainer.new()
 	api_row.add_theme_constant_override("separation", 8)
-	page.add_child(api_row)
+	_settings_page.add_child(api_row)
 	api_row.add_child(_label("API Host"))
 	_weather_host = LineEdit.new()
 	_weather_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -193,9 +249,9 @@ func _build_weather_tab() -> void:
 	save_api.pressed.connect(_save_weather_settings)
 	api_row.add_child(save_api)
 
-	var city_row := HBoxContainer.new()
+	var city_row := VBoxContainer.new()
 	city_row.add_theme_constant_override("separation", 8)
-	page.add_child(city_row)
+	_settings_page.add_child(city_row)
 	city_row.add_child(_label("手动城市"))
 	_weather_city_name = LineEdit.new()
 	_weather_city_name.placeholder_text = "名称"
@@ -230,12 +286,10 @@ func _build_weather_tab() -> void:
 	_weather_status.text = "尚未查询天气"
 	_weather_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	page.add_child(_weather_status)
-	_weather_summary = Label.new()
-	_weather_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	page.add_child(_weather_summary)
-	_weather_advice = Label.new()
-	_weather_advice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	page.add_child(_weather_advice)
+	_weather_summary = _weather_card(page, "实时")
+	_weather_today = _weather_card(page, "今日")
+	_weather_tomorrow = _weather_card(page, "明天")
+	_weather_advice = _weather_card(page, "建议")
 	_refresh_weather_cache()
 
 
@@ -247,8 +301,8 @@ func _label(text: String) -> Label:
 
 func _content_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("dbe8ff")
-	style.set_corner_radius_all(4)
+	style.bg_color = Color("f3f8ff")
+	style.set_corner_radius_all(0)
 	return style
 
 
@@ -306,7 +360,7 @@ func _refresh_weather_cache() -> void:
 	if not cached.is_empty():
 		_on_weather_ready(cached)
 	else:
-		_weather_status.text = "尚未查询天气，填写 API 配置后点“刷新天气”"
+		_weather_status.text = "暂无天气记录，请先在托盘“设置”中配置天气服务。"
 
 
 func _on_weather_ready(result: Dictionary) -> void:
@@ -317,36 +371,30 @@ func _on_weather_ready(result: Dictionary) -> void:
 	var today: Dictionary = result.get("today", {})
 	var tomorrow: Dictionary = result.get("tomorrow", {})
 	var advice: Array = result.get("advice", [])
-	var stamp := _clock.format_local(int(result.get("fetched_at", 0)))
-	var suffix := "（缓存，可能不是最新）" if bool(result.get("stale", false)) else ""
-	var resolution := int(result.get("resolution_km", 0))
-	var resolution_text := (" · %dkm 格点" % resolution) if resolution > 0 else ""
-	_weather_status.text = "更新时间：%s%s  %s" % [stamp, suffix, str(result.get("error", ""))]
-	_weather_summary.text = "位置：%s（%s）%s\n现在：%.0f°C %s，湿度 %d%%，风 %.1f m/s\n今天：%.0f~%.0f°C %s，降雨概率 %d%%\n明天：%.0f~%.0f°C %s，降雨概率 %d%%" % [
-		str(location.get("name", "当前位置")),
-		str(location.get("source", "system")),
-		resolution_text,
-		float(current.get("temp_c", 0.0)),
-		str(current.get("text", "")),
-		int(current.get("humidity", 0)),
-		float(current.get("wind_ms", 0.0)),
-		float(today.get("min_c", 0.0)),
-		float(today.get("max_c", 0.0)),
-		str(today.get("text", "")),
-		int(today.get("pop", 0)),
-		float(tomorrow.get("min_c", 0.0)),
-		float(tomorrow.get("max_c", 0.0)),
-		str(tomorrow.get("text", "")),
-		int(tomorrow.get("pop", 0)),
-	]
-	var advice_lines: Array[String] = []
-	for item in advice:
-		advice_lines.append("• " + str(item))
-	var attribution: Array = result.get("attribution", [])
-	var attribution_text := "天气数据由和风天气提供"
-	if not attribution.is_empty():
-		attribution_text += "（%s）" % str(attribution[0])
-	_weather_advice.text = "建议：\n" + "\n".join(advice_lines) + "\n\n" + attribution_text
+	_weather_status.text = "位置：" + str(location.get("name", "地点暂不可用"))
+	if bool(result.get("stale", false)): _weather_status.text += "（缓存，待刷新）"
+	var name_error := str(location.get("name_error", ""))
+	if not name_error.is_empty():
+		_weather_status.text += "\n" + ("地点服务无权限，请检查 GeoAPI 权限或在设置中填写手动城市。" if name_error.contains("403") else name_error)
+	_weather_summary.text = "%.0f°C %s · 湿度 %d%% · 风 %.1f m/s" % [float(current.get("temp_c", 0)), str(current.get("text", "")), int(current.get("humidity", 0)), float(current.get("wind_ms", 0))]
+	_weather_today.text = _forecast_text(today)
+	_weather_tomorrow.text = _forecast_text(tomorrow)
+	_weather_advice.text = "\n".join(advice) if not advice.is_empty() else "暂无建议"
+
+func _forecast_text(day: Dictionary) -> String:
+	return "%.0f～%.0f°C %s · 降雨概率 %d%%" % [float(day.get("min_c", 0)), float(day.get("max_c", 0)), str(day.get("text", "")), int(day.get("pop", 0))]
+
+func _weather_card(parent: Control, heading: String) -> Label:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", PixelDialogSkin.pixel_box(Color("f3faff")))
+	parent.add_child(panel)
+	var column := VBoxContainer.new()
+	panel.add_child(column)
+	column.add_child(_label(heading))
+	var body := _label("等待天气数据")
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(body)
+	return body
 
 
 func _on_weather_failed(message: String) -> void:
@@ -360,13 +408,13 @@ func _build_work_tab() -> void:
 	page.add_theme_constant_override("separation", 10)
 	_tabs.add_child(page)
 	var title := Label.new()
-	title.text = "工作模式：Word / WPS / PPT / Excel / PDF 前台时自动开启；离开 10 分钟自动关闭"
+	title.text = "专注与休息"
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	page.add_child(title)
 	_work_summary = Label.new()
 	_work_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	page.add_child(_work_summary)
-	var row := HBoxContainer.new()
+	var row := VBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	page.add_child(row)
 	_work_toggle = Button.new()
@@ -423,14 +471,8 @@ func _refresh_work() -> void:
 	if mode == "off":
 		busy_text = "未开启"
 	_work_toggle.text = "关闭工作模式" if mode != "off" else "开启工作模式"
-	_work_summary.text = "状态：%s（%s）  剩余：%s\n前台：%s  办公软件：%s  空闲：%d 秒\n自动开启：30 秒；无办公软件自动关闭：自动 2 分钟 / 手动 10 分钟" % [
-		busy_text,
-		mode,
-		_clock.format_duration(int(state.get("remaining_seconds", 0))),
-		str(state.get("foreground", "无")),
-		"是" if bool(state.get("office", false)) else "否",
-		int(state.get("idle_seconds", 0)),
-	]
+	_work_summary.text = "%s · %s\n剩余 %s" % [busy_text, {"off": "未开启", "manual": "手动", "auto": "自动"}.get(mode, mode), _clock.format_duration(int(state.get("remaining_seconds", 0)))]
+
 
 
 func _build_status_tab() -> void:
@@ -439,58 +481,37 @@ func _build_status_tab() -> void:
 	page.add_theme_constant_override("separation", 10)
 	_tabs.add_child(page)
 	var title := Label.new()
-	title.text = "系统状态（哨兵每 1 秒刷新；C 盘分析只读，不会删除文件）"
+	title.text = "实时概况"
 	page.add_child(title)
 	_sentinel_summary = Label.new()
 	_sentinel_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_sentinel_summary.text = "哨兵启动中……"
 	page.add_child(_sentinel_summary)
 	var process_title := Label.new()
-	process_title.text = "占用较高的程序："
+	process_title.text = "程序占用"
 	page.add_child(process_title)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size.y = 64
 	page.add_child(scroll)
 	_sentinel_processes = VBoxContainer.new()
 	_sentinel_processes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_sentinel_processes)
 	_refresh_status()
-	var drive_title := Label.new()
-	drive_title.text = "C 盘非必要文件（定向扫描，最多 60 秒）"
-	page.add_child(drive_title)
-	_drive_status = Label.new()
-	_drive_status.text = "尚未扫描"
-	_drive_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	page.add_child(_drive_status)
-	_drive_button = Button.new()
-	_drive_button.text = "检查 C 盘"
-	_drive_button.pressed.connect(_on_drive_button)
-	page.add_child(_drive_button)
-	_drive_summary = Label.new()
-	_drive_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	page.add_child(_drive_summary)
-	var drive_scroll := ScrollContainer.new()
-	drive_scroll.custom_minimum_size = Vector2(0, 150)
-	page.add_child(drive_scroll)
-	_drive_list = VBoxContainer.new()
-	_drive_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	drive_scroll.add_child(_drive_list)
-	var drive: Node = FeatureServices.get_provider("drive_analysis")
-	if drive != null:
-		drive.scan_started.connect(_on_drive_started)
-		drive.scan_progress.connect(_on_drive_progress)
-		drive.scan_finished.connect(_on_drive_finished)
-		drive.scan_failed.connect(_on_drive_failed)
-		var cached: Dictionary = drive.get_cached()
-		if not cached.is_empty():
-			_render_drive(cached)
+	var drive_entry := Button.new()
+	drive_entry.text = "检查 C 盘"
+	drive_entry.pressed.connect(func(): FeatureServices.open_panel("C 盘检查"))
+	page.add_child(drive_entry)
 	var autostart: Node = FeatureServices.get_provider("autostart")
 	_autostart_check = CheckBox.new()
 	_autostart_check.text = "开机自动启动（推荐，定时提醒更可靠）"
 	if autostart != null:
 		_autostart_check.button_pressed = autostart.is_enabled()
 		_autostart_check.toggled.connect(_on_autostart_toggled)
-	page.add_child(_autostart_check)
+	if _settings_page != null:
+		_settings_page.add_child(_autostart_check)
+	else:
+		_autostart_check.queue_free()
 
 
 func _on_autostart_toggled(pressed: bool) -> void:
@@ -559,7 +580,7 @@ func _render_drive(result: Dictionary) -> void:
 	for category in totals.keys():
 		parts.append("%s %s" % [_category_label(str(category)), _format_size(int(totals[category]))])
 	var source := "Windows 搜索索引" if str(result.get("source", "")) == "windows_search" else "定向扫描"
-	_drive_summary.text = "来源：%s。共 %d 个可整理文件，合计 %s。%s\n建议手动移动到其他盘；本功能不会删除或移动文件。" % [
+	_drive_summary.text = "%s · %d 个文件 · %s\n%s\n仅检查，不会自动删除。" % [
 		source,
 		int(result.get("matched", 0)),
 		_format_size(int(result.get("bytes", 0))),
@@ -674,7 +695,8 @@ func _refresh_list() -> void:
 	for child in _list.get_children():
 		child.queue_free()
 	var items: Array = FeatureServices.reminder.list_pending() if FeatureServices.reminder != null else []
-	_status_label.text = "待提醒：%d 条" % items.size()
+	if int(_status_label.get_meta("until", 0)) < Time.get_ticks_msec():
+		_status_label.text = "待提醒：%d 条" % items.size()
 	for item_value in items:
 		var item: Dictionary = item_value
 		var row := HBoxContainer.new()
@@ -707,3 +729,97 @@ func _quick_label(seconds: int) -> String:
 func _set_status(message: String) -> void:
 	if _status_label != null:
 		_status_label.text = message
+		_status_label.set_meta("until", Time.get_ticks_msec() + 5000)
+
+
+func _style_controls(node: Node) -> void:
+	if node is Button and not node is CheckBox:
+		node.custom_minimum_size = Vector2(0, 40)
+		node.theme = PixelDialogSkin.create_theme()
+	if node is LineEdit:
+		node.custom_minimum_size.y = 38
+		node.add_theme_color_override("font_color", Color("254c7a"))
+		node.add_theme_color_override("font_placeholder_color", Color("7b8fa8"))
+		var field := StyleBoxFlat.new()
+		field.bg_color = Color.WHITE
+		field.border_color = Color("bdd0e6")
+		field.set_border_width_all(1)
+		field.set_corner_radius_all(0)
+		field.content_margin_left = 10
+		field.content_margin_right = 10
+		node.add_theme_stylebox_override("normal", field)
+		node.add_theme_stylebox_override("focus", field)
+	if node is Label:
+		node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	for child in node.get_children():
+		_style_controls(child)
+
+
+func _build_drive_tab() -> void:
+	var page := VBoxContainer.new()
+	page.name = "C 盘检查"
+	page.add_theme_constant_override("separation", 10)
+	_tabs.add_child(page)
+	var drive_title := Label.new()
+	drive_title.text = "C 盘空间整理"
+	page.add_child(drive_title)
+	_drive_status = Label.new()
+	_drive_status.text = "点击检查，查看可整理的文件"
+	_drive_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	page.add_child(_drive_status)
+	_drive_button = Button.new()
+	_drive_button.text = "检查 C 盘"
+	_drive_button.pressed.connect(_on_drive_button)
+	page.add_child(_drive_button)
+	_drive_summary = Label.new()
+	_drive_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	page.add_child(_drive_summary)
+	var drive_scroll := ScrollContainer.new()
+	drive_scroll.custom_minimum_size = Vector2(0, 150)
+	page.add_child(drive_scroll)
+	_drive_list = VBoxContainer.new()
+	_drive_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	drive_scroll.add_child(_drive_list)
+	var drive: Node = FeatureServices.get_provider("drive_analysis")
+	if drive != null:
+		drive.scan_started.connect(_on_drive_started)
+		drive.scan_progress.connect(_on_drive_progress)
+		drive.scan_finished.connect(_on_drive_finished)
+		drive.scan_failed.connect(_on_drive_failed)
+
+func _restart_drive_scan() -> void:
+	_scan_generation += 1
+	var generation := _scan_generation
+	_drive_summary.text = ""
+	for child in _drive_list.get_children(): child.queue_free()
+	var drive: Node = FeatureServices.get_provider("drive_analysis")
+	if drive == null: return
+	if drive.is_scanning():
+		drive.cancel_scan()
+		_drive_status.text = "正在结束上次扫描……"
+		while drive.is_scanning():
+			await get_tree().create_timer(0.1).timeout
+	if not visible or generation != _scan_generation: return
+	_drive_summary.text = ""
+	for child in _drive_list.get_children(): child.queue_free()
+	_drive_status.text = "正在重新检查……"
+	drive.start_scan()
+
+
+var _header_dragging := false
+var _header_mouse := Vector2i.ZERO
+var _header_origin := Vector2i.ZERO
+
+func _on_header_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_header_dragging = event.pressed and event.position.y < 170
+		if _header_dragging:
+			_header_mouse = DisplayServer.mouse_get_position()
+			_header_origin = position
+
+func _process(_delta: float) -> void:
+	if _header_dragging:
+		if not visible or not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+			_header_dragging = false
+		else:
+			position = _header_origin + DisplayServer.mouse_get_position() - _header_mouse

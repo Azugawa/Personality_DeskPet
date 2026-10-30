@@ -208,6 +208,23 @@ func _fetch_weather(location: Dictionary, host: String, api_key: String, now: in
 	var lat_text := "%.2f" % lat
 	var lon_text := "%.2f" % lon
 	var lang: String = _settings.get_string("weather.language", "zh")
+	if str(location.get("source", "")) == "system":
+		var geo := await _fetch_json("%s/geo/v2/city/lookup?location=%s%%2C%s&lang=zh&number=1" % [host, lon_text, lat_text], api_key)
+		var places: Array = geo.get("data", {}).get("location", [])
+		if not places.is_empty():
+			var parts: Array[String] = []
+			for key in ["adm1", "adm2", "name"]:
+				var part := str(places[0].get(key, ""))
+				if not part.is_empty() and not parts.has(part): parts.append(part)
+			location["name"] = " · ".join(parts)
+		else:
+			location["name"] = "地点名称暂不可用"
+			location["name_error"] = str(geo.get("error", "未找到对应地点"))
+			var previous: Dictionary = _cache.get("location", {})
+			var previous_name := str(previous.get("name", ""))
+			if absf(float(previous.get("lat", 999)) - lat) < 0.01 and absf(float(previous.get("lon", 999)) - lon) < 0.01 and not previous_name.is_empty() and previous_name != "当前位置" and not previous_name.contains("失败") and not previous_name.contains("不可用"):
+				location["name"] = previous_name
+				location["name_error"] += "；沿用同位置的历史地点名称"
 	var current_url := "%s/weather/v1/current/%s/%s?lang=%s" % [host, lat_text, lon_text, lang]
 	var hourly_url := "%s/weather/v1/hourly/%s/%s?lang=%s&hours=24" % [host, lat_text, lon_text, lang]
 	var daily_url := "%s/weather/v1/daily/%s/%s?lang=%s&days=3" % [host, lat_text, lon_text, lang]
