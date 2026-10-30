@@ -901,7 +901,8 @@ func _build_status_tab() -> void:
 	page.add_child(drive_entry)
 	var autostart: Node = FeatureServices.get_provider("autostart")
 	_autostart_check = CheckBox.new()
-	_autostart_check.text = "开机自动启动（推荐，定时提醒更可靠）"
+	_autostart_check.text = "开机自动启动"
+	_autostart_check.tooltip_text = "推荐，定时提醒更可靠"
 	if autostart != null:
 		_autostart_check.button_pressed = autostart.is_enabled()
 		_autostart_check.toggled.connect(_on_autostart_toggled)
