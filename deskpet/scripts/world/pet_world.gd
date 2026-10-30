@@ -182,9 +182,12 @@ func get_character_screen_rect() -> Rect2:
 		return Rect2()
 	var content := character.get_content_size()
 	var canvas := character.get_global_transform_with_canvas()
+	# get_screen_transform() maps viewport coordinates to the game window, not
+	# to absolute screen coordinates, so add the OS window position explicitly.
+	var window_origin := Vector2(DisplayServer.window_get_position())
 	var screen := get_viewport().get_screen_transform()
-	var top_left := screen * (canvas * Vector2(-content.x * 0.5, -content.y))
-	var bottom_right := screen * (canvas * Vector2(content.x * 0.5, 0.0))
+	var top_left := window_origin + screen * (canvas * Vector2(-content.x * 0.5, -content.y))
+	var bottom_right := window_origin + screen * (canvas * Vector2(content.x * 0.5, 0.0))
 	return Rect2(top_left, bottom_right - top_left)
 
 
