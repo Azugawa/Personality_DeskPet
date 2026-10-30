@@ -24,6 +24,7 @@ var _calendar_year_value := 2026
 var _calendar_month_value := 1
 var _calendar_day_value := 1
 var _calendar_syncing := false
+var _calendar_resize_token := 0
 var _hour_wheel
 var _minute_wheel
 var _time_preview: Label
@@ -252,6 +253,7 @@ func _build_reminder_tab() -> void:
 	_calendar_popup.transparent = true
 	_calendar_popup.transparent_bg = true
 	_calendar_popup.borderless = true
+	_calendar_popup.wrap_controls = false
 	_calendar_popup.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	add_child(_calendar_popup)
 	_calendar_panel = _build_calendar_panel()
@@ -456,7 +458,7 @@ func _refresh_calendar_grid() -> void:
 	_sync_calendar_controls()
 	_calendar_day_value = mini(_calendar_day_value, _days_in_month(_calendar_year_value, _calendar_month_value))
 	for child in _calendar_grid.get_children():
-		child.queue_free()
+		child.free()
 	var first_unix := _clock.local_to_unix({
 		"year": _calendar_year_value,
 		"month": _calendar_month_value,
@@ -483,7 +485,17 @@ func _refresh_calendar_grid() -> void:
 		_calendar_grid.add_child(button)
 	_refresh_date_button()
 	if _calendar_popup != null and _calendar_popup.visible:
-		_resize_calendar_popup.call_deferred()
+		_queue_calendar_resize()
+
+
+func _queue_calendar_resize() -> void:
+	_calendar_resize_token += 1
+	var token := _calendar_resize_token
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if token != _calendar_resize_token:
+		return
+	_resize_calendar_popup()
 
 
 func _resize_calendar_popup() -> void:
@@ -511,9 +523,9 @@ func _toggle_calendar() -> void:
 		_calendar_popup.hide()
 		return
 	_refresh_calendar_grid()
+	_calendar_popup.size = Vector2i(248, 200)
 	_calendar_popup.popup()
-	await get_tree().process_frame
-	_resize_calendar_popup()
+	_queue_calendar_resize()
 
 
 func _select_calendar_day(day: int) -> void:
