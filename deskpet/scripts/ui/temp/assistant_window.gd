@@ -346,7 +346,30 @@ func _build_calendar_panel() -> PanelContainer:
 	_calendar_grid.add_theme_constant_override("h_separation", 2)
 	_calendar_grid.add_theme_constant_override("v_separation", 2)
 	column.add_child(_calendar_grid)
+	var footer := HBoxContainer.new()
+	footer.add_theme_constant_override("separation", 8)
+	column.add_child(footer)
+	var today_button := Button.new()
+	today_button.text = "今天"
+	today_button.custom_minimum_size = Vector2(0, 30)
+	today_button.pressed.connect(_select_today)
+	footer.add_child(today_button)
+	var cancel_button := Button.new()
+	cancel_button.text = "取消"
+	cancel_button.custom_minimum_size = Vector2(0, 30)
+	cancel_button.pressed.connect(func(): _calendar_popup.hide())
+	footer.add_child(cancel_button)
 	return panel
+
+
+func _select_today() -> void:
+	var today := _clock.unix_to_local(_clock.now())
+	_calendar_year_value = clampi(int(today.get("year", _calendar_year_base)), _calendar_year_base, _calendar_year_base + 5)
+	_calendar_month_value = int(today.get("month", 1))
+	_calendar_day_value = int(today.get("day", 1))
+	_calendar_popup.hide()
+	_refresh_calendar_grid()
+	_update_time_preview()
 
 
 func _on_calendar_year_selected(index: int) -> void:
