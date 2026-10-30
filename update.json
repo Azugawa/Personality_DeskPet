@@ -1,0 +1,88 @@
+{
+  "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/DeskPet-Setup-0.3.3.exe",
+  "version": "0.3.3",
+  "sha256": "0837d6245acb5f67f7583cbe676bdae6dc24251bbfb6ba692df7320f250e6dd8",
+  "resource_update": {
+    "chunks": [
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-8f240eb237289acaa39fa62fa6a0384c300713a0cc749ae049d0b9e5793a4117.bin",
+        "sha256": "8f240eb237289acaa39fa62fa6a0384c300713a0cc749ae049d0b9e5793a4117",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-dfe802aad40dadde7692be8377b47787127db66c120b5dc1094af1e019e7eccc.bin",
+        "sha256": "dfe802aad40dadde7692be8377b47787127db66c120b5dc1094af1e019e7eccc",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-094801f593c91b8f45c4aa0a0676f8191d6325cf40fcab2e296b20219198c699.bin",
+        "sha256": "094801f593c91b8f45c4aa0a0676f8191d6325cf40fcab2e296b20219198c699",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-c13a4d5b6e78b62abe849eaffe751b0dda1ac3dfeac2c17b401de46e85681008.bin",
+        "sha256": "c13a4d5b6e78b62abe849eaffe751b0dda1ac3dfeac2c17b401de46e85681008",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-9ca999bf72e79fe172f60056ed07cf5be7e9299eb8b98aa7a30bc40fb1d6c2ac.bin",
+        "sha256": "9ca999bf72e79fe172f60056ed07cf5be7e9299eb8b98aa7a30bc40fb1d6c2ac",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-e6c5d3069a82b54db62672a6d2b340c5221d0af4445f4e00161c1eb83bf11eca.bin",
+        "sha256": "e6c5d3069a82b54db62672a6d2b340c5221d0af4445f4e00161c1eb83bf11eca",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-e8cca8ca90f12d00d59d4f8f54fafa8d6775422ea268dff090f5b84de01847fd.bin",
+        "sha256": "e8cca8ca90f12d00d59d4f8f54fafa8d6775422ea268dff090f5b84de01847fd",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-fc63569cc37fa3ef315f4369947cae0a58576678cf0c20c19be7052370696e04.bin",
+        "sha256": "fc63569cc37fa3ef315f4369947cae0a58576678cf0c20c19be7052370696e04",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-aa9c344561e855290eb6964733ed924ad3df0b6f52496e6cf339772ae9c6497a.bin",
+        "sha256": "aa9c344561e855290eb6964733ed924ad3df0b6f52496e6cf339772ae9c6497a",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-d43f24c8c60aa8f65d0119e0329481e9ac9d01083d6d86a2a2ffadbf6296368f.bin",
+        "sha256": "d43f24c8c60aa8f65d0119e0329481e9ac9d01083d6d86a2a2ffadbf6296368f",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-519e372e78f4751d369bb20c3446173ea770128c914ca8bec41de5b141a94121.bin",
+        "sha256": "519e372e78f4751d369bb20c3446173ea770128c914ca8bec41de5b141a94121",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-11102c5e6d03cfe6414294d6863c62c610f4da34fcbc49e25d64d3f8d9332c09.bin",
+        "sha256": "11102c5e6d03cfe6414294d6863c62c610f4da34fcbc49e25d64d3f8d9332c09",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-1cb0c3f82cf56e1d51c9fe2db51ed197167a9f40d7f677d67d2c19e986420763.bin",
+        "sha256": "1cb0c3f82cf56e1d51c9fe2db51ed197167a9f40d7f677d67d2c19e986420763",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-a96a2edd4b0e3319a70f81bef576e5058ed695354fddcf24c18d8c90cb67332f.bin",
+        "sha256": "a96a2edd4b0e3319a70f81bef576e5058ed695354fddcf24c18d8c90cb67332f",
+        "size": 1048576
+      },
+      {
+        "url": "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/chunk-edee7c489f3e3a929960f7709e2f7836a35766500105edfc6acd049a099bc5c3.bin",
+        "sha256": "edee7c489f3e3a929960f7709e2f7836a35766500105edfc6acd049a099bc5c3",
+        "size": 476548
+      }
+    ],
+    "chunk_size": 1048576,
+    "format": 1,
+    "sha256": "1eb4e6a076ff5b3ce7888c9f697b437f855648f689930af313a78124b7e5b105",
+    "engine": "4.7.2"
+  }
+}

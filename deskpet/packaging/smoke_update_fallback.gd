@@ -21,5 +21,11 @@ func run() -> void:
 	assert(updater.calls[1]=="https://gh-proxy.com/"+updater.FEED)
 	assert(updater.calls[2]=="https://ghproxy.net/"+updater.FEED)
 	assert(updater._download_candidates("https://example.com/update.json").size()==1)
+	var gitee_asset := "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/v0.3.3/DeskPet-Setup-0.3.3.exe"
+	var mirrored := updater._download_candidates(gitee_asset)
+	assert(mirrored[0] == gitee_asset)
+	assert(mirrored[1] == "https://github.com/Azugawa/Personality_DeskPet/releases/download/v0.3.3/DeskPet-Setup-0.3.3.exe")
+	assert(mirrored.size() >= 3)
+	assert(mirrored[2].begins_with("https://gh-proxy.com/"))
 	print("PASS: direct failure, invalid gateway response, next gateway success, non-GitHub untouched")
 	quit()

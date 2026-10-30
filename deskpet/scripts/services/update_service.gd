@@ -1,7 +1,10 @@
 extends Node
 const VERSION := "0.3.3"
+# GitHub remains the fallback; config/updates.json puts the Gitee feed first.
 const FEED := "https://github.com/Azugawa/Personality_DeskPet/releases/latest/download/update.json"
 const PREFIX := "https://github.com/Azugawa/Personality_DeskPet/releases/download/"
+const GITEE_FEED := "https://gitee.com/shengge-zichuan/personality_-deskpet/raw/main/update.json"
+const GITEE_PREFIX := "https://gitee.com/shengge-zichuan/personality_-deskpet/releases/download/"
 var update_config: Dictionary = {}
 var busy := false
 var offer: Dictionary = {}
@@ -136,12 +139,24 @@ func _allowed_download(url: String) -> bool:
 	return false
 
 func _download_candidates(url: String) -> Array[String]:
-	var candidates: Array[String] = [url]
-	if url.begins_with("https://github.com/"):
-		for prefix in update_config.get("github_proxy_prefixes", []):
-			var gateway := str(prefix)
-			if gateway.begins_with("https://") and gateway.ends_with("/"):
-				candidates.append(gateway + url)
+	var bases: Array[String] = [url]
+	for rule in update_config.get("asset_mirrors", []):
+		if typeof(rule) != TYPE_DICTIONARY: continue
+		var from := str(rule.get("from", ""))
+		var to := str(rule.get("to", ""))
+		if from.is_empty() or to.is_empty() or not url.begins_with(from): continue
+		bases.append(to + url.substr(from.length()))
+	var candidates: Array[String] = []
+	for base in bases:
+		if not candidates.has(base):
+			candidates.append(base)
+		if base.begins_with("https://github.com/"):
+			for prefix in update_config.get("github_proxy_prefixes", []):
+				var gateway := str(prefix)
+				if gateway.begins_with("https://") and gateway.ends_with("/"):
+					var proxied := gateway + base
+					if not candidates.has(proxied):
+						candidates.append(proxied)
 	return candidates
 
 func _fetch(url: String, file: String = "", expected_hash: String = "") -> Array:
