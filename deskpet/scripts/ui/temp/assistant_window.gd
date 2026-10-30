@@ -99,6 +99,7 @@ func _ready() -> void:
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.add_theme_constant_override("scrollbar_h_separation", 8)
 	layout.add_child(scroll)
 	_tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -622,15 +623,15 @@ func _build_weather_tab() -> void:
 	_settings_page.add_child(api_row)
 	api_row.add_child(_label("API Host"))
 	_weather_host = LineEdit.new()
-	_weather_host.custom_minimum_size = Vector2(320, 38)
-	_weather_host.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_weather_host.custom_minimum_size = Vector2(0, 38)
+	_weather_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_weather_host.placeholder_text = "https://xxxx.re.qweatherapi.com"
 	_weather_host.text = settings.get_string("weather.api_host", "")
 	api_row.add_child(_weather_host)
 	api_row.add_child(_label("API Key"))
 	_weather_key = LineEdit.new()
-	_weather_key.custom_minimum_size = Vector2(320, 38)
-	_weather_key.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_weather_key.custom_minimum_size = Vector2(0, 38)
+	_weather_key.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_weather_key.secret = true
 	_weather_key.placeholder_text = "和风天气 API Key"
 	_weather_key.text = settings.get_secret("weather.api_key", "")
@@ -1136,6 +1137,9 @@ func _style_controls(node: Node) -> void:
 			node.custom_minimum_size = Vector2(0, 40)
 		node.theme = PixelDialogSkin.create_theme()
 	if node is LineEdit:
+		node.expand_to_text_length = false
+		node.custom_minimum_size.x = 0
+		node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		node.custom_minimum_size.y = 38
 		node.add_theme_color_override("font_color", Color("254c7a"))
 		node.add_theme_color_override("font_placeholder_color", Color("7b8fa8"))

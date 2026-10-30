@@ -1,5 +1,5 @@
 extends Node
-const VERSION := "0.3.8"
+const VERSION := "0.3.9"
 # GitHub remains the fallback; config/updates.json puts the Gitee feed first.
 const FEED := "https://github.com/Azugawa/Personality_DeskPet/releases/latest/download/update.json"
 const PREFIX := "https://github.com/Azugawa/Personality_DeskPet/releases/download/"

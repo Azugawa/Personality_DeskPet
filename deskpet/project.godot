@@ -1,56 +1,48 @@
 ; Engine configuration file.
-; DeskPet - modular pixel-art desktop pet framework.
-; Target: Godot 4 stable (verified with 4.7.2.stable).
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
 ;
-; Desktop transparency is NOT enabled at startup. It is enabled at runtime only
-; with the "--desktop-mode" command-line flag (see scripts/core/window_controller.gd),
-; so normal editor/play debugging stays opaque.
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
 
 config_version=5
 
 [application]
 
 config/name="何爪爪"
-config/version="0.3.8"
+config/description="Persistent pixel-art desktop pet with eight-direction animation, behavior state machine and independent furniture."
+config/version="0.3.9"
+run/main_scene="res://scenes/main/main.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="Godot/app_userdata/DeskPet"
-boot_splash/show_image=false
-boot_splash/bg_color=Color(0, 0, 0, 0)
-config/icon="res://assets/ui/icons/app_icon_256.png"
-config/description="Persistent pixel-art desktop pet with eight-direction animation, behavior state machine and independent furniture."
-run/main_scene="res://scenes/main/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
+boot_splash/bg_color=Color(0, 0, 0, 0)
+boot_splash/show_image=false
+config/icon="res://assets/ui/icons/app_icon_256.png"
 
 [autoload]
 
 TrayService="*res://scripts/services/tray_service.gd"
-
 UpdateService="*res://scripts/services/update_service.gd"
 FeatureServices="*res://scripts/services/feature_services.gd"
-
 EventBus="*res://scripts/events/event_bus.gd"
 SceneManager="*res://scripts/core/scene_manager.gd"
 
 [display]
 
-window/subwindows/embed_subwindows=false
-
 window/size/viewport_width=960
 window/size/viewport_height=720
-window/stretch/mode="canvas_items"
 window/size/resizable=false
-window/size/transparent=false
-window/size/borderless=false
-window/size/always_on_top=false
+window/subwindows/embed_subwindows=false
+window/stretch/mode="canvas_items"
 window/per_pixel_transparency/allowed=true
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-textures/canvas_textures/default_texture_filter=0
-anti_aliasing/quality/msaa_2d=0
-anti_aliasing/quality/screen_space_aa=0
+environment/defaults/default_clear_color=Color(0, 0, 0, 0)
 2d/snap/snap_2d_transforms_to_pixel=true
 2d/snap/snap_2d_vertices_to_pixel=true
-environment/defaults/default_clear_color=Color(0, 0, 0, 0)
