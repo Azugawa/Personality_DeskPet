@@ -309,8 +309,8 @@ func _build_calendar_panel() -> PanelContainer:
 	column.add_child(header)
 	var previous := Button.new()
 	previous.text = "<"
-	previous.set_meta("compact_calendar_button", true)
-	previous.custom_minimum_size = Vector2(26, 24)
+	_style_calendar_button(previous, 26, Color("173763"))
+	previous.custom_minimum_size = Vector2(26, 26)
 	previous.pressed.connect(_shift_calendar_month.bind(-1))
 	header.add_child(previous)
 	_calendar_year_option = OptionButton.new()
@@ -327,8 +327,8 @@ func _build_calendar_panel() -> PanelContainer:
 	header.add_child(_calendar_month_option)
 	var next := Button.new()
 	next.text = ">"
-	next.set_meta("compact_calendar_button", true)
-	next.custom_minimum_size = Vector2(26, 24)
+	_style_calendar_button(next, 26, Color("173763"))
+	next.custom_minimum_size = Vector2(26, 26)
 	next.pressed.connect(_shift_calendar_month.bind(1))
 	header.add_child(next)
 	var weekdays := HBoxContainer.new()
@@ -352,15 +352,27 @@ func _build_calendar_panel() -> PanelContainer:
 	column.add_child(footer)
 	var today_button := Button.new()
 	today_button.text = "今天"
-	today_button.custom_minimum_size = Vector2(0, 30)
+	_style_calendar_button(today_button, 30, Color("173763"))
 	today_button.pressed.connect(_select_today)
 	footer.add_child(today_button)
 	var cancel_button := Button.new()
 	cancel_button.text = "取消"
-	cancel_button.custom_minimum_size = Vector2(0, 30)
+	_style_calendar_button(cancel_button, 30, Color("173763"))
 	cancel_button.pressed.connect(func(): _calendar_popup.hide())
 	footer.add_child(cancel_button)
 	return panel
+
+
+func _style_calendar_button(button: Button, height: int, color: Color) -> void:
+	button.flat = true
+	button.set_meta("compact_calendar_button", true)
+	button.custom_minimum_size = Vector2(0, height)
+	button.add_theme_font_size_override("font_size", 12)
+	var empty := StyleBoxEmpty.new()
+	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+		button.add_theme_stylebox_override(state, empty)
+	for key in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(key, color)
 
 
 func _select_today() -> void:
@@ -436,20 +448,13 @@ func _refresh_calendar_grid() -> void:
 		blank.custom_minimum_size = Vector2(0, 24)
 		blank.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_calendar_grid.add_child(blank)
-	var today := _clock.unix_to_local(_clock.now())
 	for day in range(1, _days_in_month(_calendar_year_value, _calendar_month_value) + 1):
 		var button := Button.new()
 		button.text = str(day)
-		button.flat = true
-		button.set_meta("compact_calendar_button", true)
-		button.custom_minimum_size = Vector2(0, 24)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.add_theme_font_size_override("font_size", 12)
+		var day_color := Color("c0392b") if day == _calendar_day_value else Color("111111")
+		_style_calendar_button(button, 24, day_color)
 		button.pressed.connect(_select_calendar_day.bind(day))
-		if day == _calendar_day_value:
-			button.add_theme_color_override("font_color", Color("c0392b"))
-		elif int(today.get("year", 0)) == _calendar_year_value and int(today.get("month", 0)) == _calendar_month_value and int(today.get("day", 0)) == day:
-			button.add_theme_color_override("font_color", Color("2c70b0"))
 		_calendar_grid.add_child(button)
 	_refresh_date_button()
 
@@ -461,13 +466,17 @@ func _toggle_calendar() -> void:
 		_calendar_popup.hide()
 		return
 	_refresh_calendar_grid()
-	_calendar_popup.size = Vector2i(276, 300)
+	_calendar_popup.popup()
+	await get_tree().process_frame
+	if _calendar_popup == null or not _calendar_popup.visible:
+		return
+	var content_size := _calendar_panel.get_combined_minimum_size()
+	_calendar_popup.size = Vector2i(maxi(248, int(content_size.x) + 8), int(content_size.y) + 8)
 	var pos := _date_button.get_screen_position() + Vector2(0, _date_button.size.y + 6)
 	var screen := DisplayServer.screen_get_usable_rect(DisplayServer.get_screen_from_rect(Rect2i(Vector2i(pos), Vector2i.ONE)))
 	pos.x = clampf(pos.x, screen.position.x, maxf(screen.position.x, screen.end.x - _calendar_popup.size.x))
 	pos.y = clampf(pos.y, screen.position.y, maxf(screen.position.y, screen.end.y - _calendar_popup.size.y))
 	_calendar_popup.position = Vector2i(pos)
-	_calendar_popup.popup()
 
 
 func _select_calendar_day(day: int) -> void:
