@@ -10,6 +10,7 @@ const TimeWheelScript := preload("res://scripts/ui/time_wheel.gd")
 var panel_kind := "定时任务"
 var _scan_generation := 0
 var _settings_page: VBoxContainer
+var _settings_host: Control
 var _tabs: TabContainer
 var _clock := AssistantClock.new()
 var _content_edit: LineEdit
@@ -119,7 +120,7 @@ func _ready() -> void:
 			_tabs.current_tab = 0
 	if panel_kind == "设置":
 		for child in _tabs.get_children():
-			if child != _settings_page:
+			if child != _settings_page and child != _settings_host:
 				_tabs.remove_child(child)
 				child.hide()
 				add_child(child)
@@ -595,9 +596,16 @@ func _build_weather_tab() -> void:
 	var title := Label.new()
 	title.text = "和风天气：填写 API Host 与 API Key；坐标只用于天气请求"
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_settings_host = MarginContainer.new()
+	_settings_host.name = "设置容器"
+	_settings_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_settings_host.add_theme_constant_override("margin_left", 2)
+	_settings_host.add_theme_constant_override("margin_right", 14)
+	_tabs.add_child(_settings_host)
 	_settings_page = VBoxContainer.new()
 	_settings_page.name = "设置"
-	_tabs.add_child(_settings_page)
+	_settings_page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_settings_host.add_child(_settings_page)
 	_settings_page.add_child(title)
 	var settings: Node = FeatureServices.settings
 	if settings == null:
@@ -614,14 +622,16 @@ func _build_weather_tab() -> void:
 	_settings_page.add_child(api_row)
 	api_row.add_child(_label("API Host"))
 	_weather_host = LineEdit.new()
-	_weather_host.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_weather_host.custom_minimum_size = Vector2(320, 38)
+	_weather_host.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_weather_host.placeholder_text = "https://xxxx.re.qweatherapi.com"
 	_weather_host.text = settings.get_string("weather.api_host", "")
 	api_row.add_child(_weather_host)
 	api_row.add_child(_label("API Key"))
 	_weather_key = LineEdit.new()
+	_weather_key.custom_minimum_size = Vector2(320, 38)
+	_weather_key.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_weather_key.secret = true
-	_weather_key.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_weather_key.placeholder_text = "和风天气 API Key"
 	_weather_key.text = settings.get_secret("weather.api_key", "")
 	api_row.add_child(_weather_key)
