@@ -123,6 +123,31 @@ func _on_tick() -> void:
 	_refresh_status()
 
 
+func _panel_position(pet_rect: Rect2, screen: Rect2i, panel_size: Vector2i) -> Vector2i:
+	var gap := 14
+	var pet := Rect2i(Vector2i(pet_rect.position.round()), Vector2i(pet_rect.size.round()))
+	var right_x := pet.end.x + gap
+	var left_x := pet.position.x - panel_size.x - gap
+	var right_fits := right_x >= screen.position.x and right_x + panel_size.x <= screen.end.x
+	var left_fits := left_x >= screen.position.x and left_x + panel_size.x <= screen.end.x
+	var x: int
+	if right_fits:
+		x = right_x
+	elif left_fits:
+		x = left_x
+	else:
+		# Neither side fits: use the side with more room. Overlap is unavoidable.
+		var right_space := screen.end.x - pet.end.x - gap
+		var left_space := pet.position.x - screen.position.x - gap
+		if right_space >= left_space:
+			x = maxi(screen.position.x, screen.end.x - panel_size.x)
+		else:
+			x = screen.position.x
+	var y := pet.position.y + int(pet.size.y / 2.0) - int(panel_size.y / 2.0)
+	y = clampi(y, screen.position.y + 8, maxi(screen.position.y + 8, screen.end.y - panel_size.y - 8))
+	return Vector2i(x, y)
+
+
 func open_tab(tab_name: String) -> void:
 	var pet_rect := Rect2()
 	if FeatureServices.has_method("get_character_screen_rect"):
@@ -132,14 +157,7 @@ func open_tab(tab_name: String) -> void:
 	if pet_rect.size.x > 1.0 and pet_rect.size.y > 1.0:
 		var pet_recti := Rect2i(Vector2i(pet_rect.position.round()), Vector2i(pet_rect.size.round()))
 		screen = DisplayServer.screen_get_usable_rect(DisplayServer.get_screen_from_rect(pet_recti))
-		var gap := 14
-		pos.x = pet_recti.end.x + gap
-		pos.y = pet_recti.position.y + int(pet_recti.size.y / 2.0) - int(size.y / 2.0)
-		if pos.x + size.x > screen.end.x:
-			pos.x = pet_recti.position.x - size.x - gap
-		if pos.x < screen.position.x + 8:
-			pos.x = screen.position.x + 8
-		pos.y = clampi(pos.y, screen.position.y + 8, maxi(screen.position.y + 8, screen.end.y - size.y - 8))
+		pos = _panel_position(pet_rect, screen, size)
 	else:
 		pos = DisplayServer.mouse_get_position() + Vector2i(8, 8)
 		screen = DisplayServer.screen_get_usable_rect(DisplayServer.get_screen_from_rect(Rect2i(pos, Vector2i.ONE)))
