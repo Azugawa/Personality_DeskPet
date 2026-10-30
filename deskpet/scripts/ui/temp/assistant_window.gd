@@ -299,6 +299,7 @@ func _build_calendar_panel() -> PanelContainer:
 	_calendar_day_value = int(_clock.unix_to_local(_clock.now()).get("day", 1))
 	var panel := PanelContainer.new()
 	panel.visible = true
+	panel.theme = PixelDialogSkin.create_theme()
 	panel.add_theme_stylebox_override("panel", PixelDialogSkin.pixel_box(Color("f4fbff"), 6))
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 6)
