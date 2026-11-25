@@ -25,6 +25,15 @@ func _process(_delta: float) -> void:
 	if pet_input.physics != null: pet_input.physics.position += Vector2(shift)
 	viewport.canvas_transform = Transform2D(Vector2(scale_factor,0),Vector2(0,scale_factor),next)
 	get_window().size = Vector2i((bounds.size*scale_factor).ceil())
+	_keep_above_taskbar()
+func _keep_above_taskbar() -> void:
+	if pet_input == null or pet_input.physics == null: return
+	if pet_input.physics.mode == "held" or pet_input.physics.mode == "flight": return
+	var window := get_window()
+	var center := window.position + Vector2i(window.size.x/2,window.size.y/2)
+	var usable := WindowController.usable_rect_at(center)
+	var max_y := maxi(usable.position.y,usable.position.y+usable.size.y-window.size.y)
+	window.position.y = clampi(window.position.y,usable.position.y,max_y)
 func _bounds(node: Node) -> Rect2:
 	var result := Rect2()
 	if node is CanvasItem and not node.is_visible_in_tree(): return result

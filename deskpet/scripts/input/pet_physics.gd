@@ -104,7 +104,8 @@ func _process(delta: float) -> void:
 		# The top of the pulled cloth is the actual grab point, including mirroring.
 		var local_grab := Vector2(sprite.texture.get_width()-1-cloth_grab.x if facing_right else cloth_grab.x,cloth_grab.y)-sprite.texture.get_size()/2
 		var grab := get_viewport().get_final_transform() * sprite.get_global_transform_with_canvas() * local_grab
-		get_window().position = DisplayServer.mouse_get_position()-Vector2i(grab)
+		var target := DisplayServer.mouse_get_position()-Vector2i(grab)
+		get_window().position = WindowController.clamp_to_usable(target, get_window().size, DisplayServer.mouse_get_position())
 		input._window_anchor = get_window().position
 		input._screen_anchor = DisplayServer.mouse_get_position()
 		if velocity.length() >= THROW_THRESHOLD:

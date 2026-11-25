@@ -60,7 +60,8 @@ func _process(_delta: float) -> void:
 	if _pressed and not _head_pressed and _press_on_character:
 		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 			if physics.mode != "held": physics.begin()
-			get_window().position = _window_anchor + DisplayServer.mouse_get_position() - _screen_anchor
+			var target := _window_anchor + DisplayServer.mouse_get_position() - _screen_anchor
+			get_window().position = WindowController.clamp_to_usable(target, get_window().size, DisplayServer.mouse_get_position())
 		else:
 			physics.release()
 			_pressed = false

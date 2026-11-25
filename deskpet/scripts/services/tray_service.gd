@@ -33,6 +33,9 @@ func _set_shown(value: bool) -> void:
 		if world != null: world.visible = value
 	get_window().mouse_passthrough = not value
 
+func show_pet() -> void:
+	_set_shown(true)
+
 func _selected(id: int) -> void:
 	match id:
 		0: _set_shown(not shown)

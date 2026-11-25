@@ -103,6 +103,26 @@ static func _place_window(window: Window, desktop_config: Dictionary, report: Di
 	report["screen_usable_rect"] = usable
 
 
+## Usable (taskbar-excluded) work area of the screen that contains `point`.
+static func usable_rect_at(point: Vector2i) -> Rect2i:
+	var screen := DisplayServer.get_screen_from_rect(Rect2i(point, Vector2i.ONE))
+	return DisplayServer.screen_get_usable_rect(screen)
+
+
+## Keeps a window rectangle inside `usable`; oversized windows are pinned top-left.
+static func clamp_rect_to_usable(position: Vector2i, size: Vector2i, usable: Rect2i) -> Vector2i:
+	var limit := usable.position + usable.size - size
+	return Vector2i(
+		clampi(position.x, usable.position.x, maxi(usable.position.x, limit.x)),
+		clampi(position.y, usable.position.y, maxi(usable.position.y, limit.y))
+	)
+
+
+## Clamps a window around `anchor` (normally the mouse cursor) to its work area.
+static func clamp_to_usable(position: Vector2i, size: Vector2i, anchor: Vector2i) -> Vector2i:
+	return clamp_rect_to_usable(position, size, usable_rect_at(anchor))
+
+
 static func _as_dictionary(value: Variant) -> Dictionary:
 	if typeof(value) == TYPE_DICTIONARY:
 		return value

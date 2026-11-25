@@ -20,6 +20,9 @@ var visual_profile: Dictionary = {}
 
 
 func _ready() -> void:
+	var instance_guard := get_node_or_null("/root/SingleInstanceService")
+	if instance_guard != null and instance_guard.is_secondary():
+		return
 	app_config = ConfigLoader.load_json(APP_CONFIG_PATH)
 	if app_config.is_empty():
 		push_error("[Main] app config could not be loaded; built-in defaults will be used. %s" % ConfigLoader.last_error)
